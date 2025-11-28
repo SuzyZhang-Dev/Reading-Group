@@ -1,15 +1,15 @@
-import html2canvas from 'html2canvas'; 
 import React, { useState, useRef } from 'react';
 import { BookOpen, Download, Heart, Quote, Hash, User, MapPin, Zap, Coffee, ArrowUpRight, Loader2, Layers, Moon, Stars } from 'lucide-react';
+// import html2canvas from 'html2canvas'; // 移除这行会导致编译错误的静态导入
 
-const ReadingSummaryApp = () => {
+const App = () => {
   const [loading, setLoading] = useState(false);
   const cardRef = useRef(null);
 
   // 表单状态
   const [formData, setFormData] = useState({
-    name: '',
-    communityName: '与月言书·明亮的夜晚🌒', // 更新默认社群名
+    name: '你的名字',
+    communityName: '与月言书·明亮的夜晚🌒',
     bookCount: '24',
     favoriteBook: '《悉达多》',
     favoriteAuthor: '赫尔曼·黑塞',
@@ -20,7 +20,7 @@ const ReadingSummaryApp = () => {
     memorableEnv: '下暴雨的午后，在咖啡馆窗边',
     communityRec: '《纳瓦尔宝典》',
     memorableQuote: '“知识是甚至可以传授的，但智慧却无法传授。” —— 《悉达多》',
-    theme: 'moonlight' // 默认主题改为月夜
+    theme: 'moonlight'
   });
 
   // 定制主题配置
@@ -33,7 +33,7 @@ const ReadingSummaryApp = () => {
       accent: 'text-amber-200', // 月光金
       subtext: 'text-slate-400',
       border: 'border-slate-700',
-      font: 'font-serif', // 衬线体更有文学感
+      font: 'font-serif',
       decoration: 'bg-slate-800',
       shadow: 'shadow-xl shadow-slate-900',
       iconColor: 'text-amber-100'
@@ -46,7 +46,7 @@ const ReadingSummaryApp = () => {
       accent: 'text-indigo-900', // 深邃的夜空蓝
       subtext: 'text-slate-400',
       border: 'border-slate-200',
-      font: 'font-sans', // 无衬线体更现代清冷
+      font: 'font-sans',
       decoration: 'bg-slate-200',
       shadow: 'shadow-2xl shadow-slate-200',
       iconColor: 'text-indigo-800'
@@ -73,16 +73,28 @@ const ReadingSummaryApp = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 动态加载 html2canvas 并生成图片
+  // 生成图片逻辑 - 改回动态加载以兼容所有环境
   const downloadImage = async () => {
     setLoading(true);
     try {
+      // 检查是否已经加载了 html2canvas
+      if (!window.html2canvas) {
+        // 动态加载库
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
 
       const element = cardRef.current;
       // 临时移除阴影以获得更干净的边缘
+      const originalShadow = element.style.boxShadow;
       element.style.boxShadow = 'none';
       
-      const canvas = await html2canvas(element, {
+      const canvas = await window.html2canvas(element, {
         scale: 2, 
         useCORS: true,
         backgroundColor: null,
@@ -90,7 +102,7 @@ const ReadingSummaryApp = () => {
       });
       
       // 恢复阴影
-      element.style.boxShadow = '';
+      element.style.boxShadow = originalShadow;
 
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
@@ -426,4 +438,4 @@ const ReadingSummaryApp = () => {
   );
 };
 
-export default ReadingSummaryApp;
+export default App;
