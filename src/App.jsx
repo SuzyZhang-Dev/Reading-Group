@@ -1,6 +1,23 @@
 import React, { useState, useRef } from 'react';
 import { BookOpen, Download, Heart, Quote, Hash, User, MapPin, Zap, Coffee, ArrowUpRight, Loader2, Layers, Moon, Stars } from 'lucide-react';
-// import html2canvas from 'html2canvas'; // 移除这行会导致编译错误的静态导入
+// import html2canvas from 'html2canvas'; // 保持注释状态，使用动态加载
+
+// 1. 将子组件移到 App 外部，防止每次渲染都重新创建导致失去焦点
+const InputGroup = ({ label, name, value, onChange, placeholder, icon: Icon }) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+      {Icon && <Icon className="w-3 h-3 text-amber-600" />} {label}
+    </label>
+    <input
+      type="text"
+      name={name}
+      placeholder={placeholder}
+      value={value || ''} // 确保不为 undefined
+      onChange={onChange}
+      className="w-full rounded-md border-gray-300 border px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:ring-amber-500 outline-none transition"
+    />
+  </div>
+);
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -73,7 +90,7 @@ const App = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 生成图片逻辑 - 改回动态加载以兼容所有环境
+  // 生成图片逻辑
   const downloadImage = async () => {
     setLoading(true);
     try {
@@ -116,23 +133,6 @@ const App = () => {
       setLoading(false);
     }
   };
-
-  // 通用的输入框组件
-  const InputGroup = ({ label, name, placeholder, icon: Icon }) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-        {Icon && <Icon className="w-3 h-3 text-amber-600" />} {label}
-      </label>
-      <input
-        type="text"
-        name={name}
-        placeholder={placeholder}
-        value={formData[name]}
-        onChange={handleInputChange}
-        className="w-full rounded-md border-gray-300 border px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:ring-amber-500 outline-none transition"
-      />
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans text-gray-800">
@@ -207,20 +207,69 @@ const App = () => {
             </div>
           </div>
 
-          {/* 核心问卷 */}
+          {/* 核心问卷 - 2. 更新调用方式，显式传递 value 和 onChange */}
           <div>
             <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider border-b pb-2">02. 年度回顾</h3>
             
-            <InputGroup label="今年最喜欢的书？" name="favoriteBook" placeholder="Top 1 书籍" icon={Heart} />
-            <InputGroup label="今年最喜欢的作家？" name="favoriteAuthor" placeholder="作家名字" icon={User} />
-            <InputGroup label="读得最多的题材？" name="topGenre" placeholder="如：科幻、历史..." icon={Layers} />
+            <InputGroup 
+              label="今年最喜欢的书？" 
+              name="favoriteBook" 
+              value={formData.favoriteBook} 
+              onChange={handleInputChange} 
+              placeholder="Top 1 书籍" 
+              icon={Heart} 
+            />
+            <InputGroup 
+              label="今年最喜欢的作家？" 
+              name="favoriteAuthor" 
+              value={formData.favoriteAuthor} 
+              onChange={handleInputChange} 
+              placeholder="作家名字" 
+              icon={User} 
+            />
+            <InputGroup 
+              label="读得最多的题材？" 
+              name="topGenre" 
+              value={formData.topGenre} 
+              onChange={handleInputChange} 
+              placeholder="如：科幻、历史..." 
+              icon={Layers} 
+            />
             
             <div className="my-4 border-t border-dashed border-gray-200"></div>
             
-            <InputGroup label="字数最多的一本书？" name="longestBook" placeholder="最厚的一本" icon={Hash} />
-            <InputGroup label="和生活关联最多的一本书？" name="relatableBook" placeholder="最有共鸣的一本" icon={ArrowUpRight} />
-            <InputGroup label="离舒适区最远的一本书？" name="comfortZoneBook" placeholder="最难啃/最意外的一本" icon={Zap} />
-            <InputGroup label="群里种草最满意的一本书？" name="communityRec" placeholder="社群推荐" icon={BookOpen} />
+            <InputGroup 
+              label="字数最多的一本书？" 
+              name="longestBook" 
+              value={formData.longestBook} 
+              onChange={handleInputChange} 
+              placeholder="最厚的一本" 
+              icon={Hash} 
+            />
+            <InputGroup 
+              label="和生活关联最多的一本书？" 
+              name="relatableBook" 
+              value={formData.relatableBook} 
+              onChange={handleInputChange} 
+              placeholder="最有共鸣的一本" 
+              icon={ArrowUpRight} 
+            />
+            <InputGroup 
+              label="离舒适区最远的一本书？" 
+              name="comfortZoneBook" 
+              value={formData.comfortZoneBook} 
+              onChange={handleInputChange} 
+              placeholder="最难啃/最意外的一本" 
+              icon={Zap} 
+            />
+            <InputGroup 
+              label="群里种草最满意的一本书？" 
+              name="communityRec" 
+              value={formData.communityRec} 
+              onChange={handleInputChange} 
+              placeholder="社群推荐" 
+              icon={BookOpen} 
+            />
             
             <div className="my-4 border-t border-dashed border-gray-200"></div>
 
