@@ -1,0 +1,481 @@
+body {
+    font-family: -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    /* Soft gradient: Pale grey/white to very subtle warm beige/blue */
+    background: linear-gradient(180deg, #fdfbf7 0%, #f0f4f8 100%);
+    min-height: 100vh;
+    padding: 40px 60px;
+    color: #4a5568;
+    position: relative;
+    /* For noise overlay */
+}
+
+/* Noise Texture Overlay */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.03;
+    /* Very subtle noise */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.main-container {
+    max-width: 1400px;
+    /* Allow more width for the extra columns */
+    margin: 0 auto;
+}
+
+/* Operation Area - Static Header */
+.input-group {
+    position: relative;
+    /* Changed from fixed back to relative/static flow */
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto 40px auto;
+    /* Centered with bottom margin */
+
+    background: rgba(255, 255, 255, 0.9);
+    /* More opacity for better readability when scrolling */
+    backdrop-filter: blur(12px);
+    padding: 12px 20px;
+    border-radius: 50px;
+    /* Fully rounded, deeper "pill" shape for modern/organic feel */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    /* Soft, diffuse shadow */
+    display: flex;
+    gap: 12px;
+    /* Increased bottom margin to separate from content */
+    flex-wrap: wrap;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    /* Subtle highlight border */
+}
+
+input.search-input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    /* Rounded inputs */
+    font-size: 15px;
+    min-width: 180px;
+    background: #f1f5f9;
+    transition: all 0.2s ease;
+}
+
+input.search-input:focus {
+    outline: none;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(96, 125, 139, 0.1);
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    /* Rounded buttons */
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-search {
+    background: #546e7a;
+    color: white;
+}
+
+.btn-search:hover {
+    background: #455a64;
+    transform: translateY(-1px);
+}
+
+.btn-upload {
+    background: white;
+    color: #546e7a;
+    border: 1px solid #cfd8dc;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-upload:hover {
+    background: #f8fafc;
+    border-color: #b0bec5;
+}
+
+.btn-export {
+    background: #78909c;
+    color: white;
+}
+
+.btn-export:hover {
+    background: #607d8b;
+    transform: translateY(-1px);
+}
+
+/* Waterfall Layout - Smaller Images via more columns */
+.waterfall {
+    column-count: 7;
+    /* Increased from 5 to 7 for smaller images */
+    column-gap: 2px;
+    /* Tight gap */
+    padding: 0 2px;
+}
+
+@media (max-width: 1400px) {
+    .waterfall {
+        column-count: 6;
+    }
+}
+
+@media (max-width: 1100px) {
+    .waterfall {
+        column-count: 5;
+    }
+}
+
+@media (max-width: 900px) {
+    .waterfall {
+        column-count: 4;
+    }
+}
+
+@media (max-width: 700px) {
+    .waterfall {
+        column-count: 3;
+    }
+
+    body {
+        padding: 20px;
+    }
+
+    /* Reduce padding on small screens */
+}
+
+@media (max-width: 500px) {
+    .waterfall {
+        column-count: 2;
+    }
+}
+
+.book-card {
+    break-inside: avoid;
+    margin-bottom: 2px;
+    /* Further reduced spacing */
+    background: #fff;
+
+    /* Sharp corners as requested */
+    border-radius: 0;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* Image inside the card container */
+.book-card img {
+    width: 100%;
+    display: block;
+    min-height: 50px;
+    background: #f7f9fc;
+    border-radius: 0;
+    /* Let container handle the radius */
+    box-shadow: none;
+    /* Container handles shadow */
+    transition: transform 0.3s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    /* Slightly deeper shadow on lift */
+    border-color: rgba(0, 0, 0, 0.1);
+    /* Slightly darker border */
+    z-index: 10;
+}
+
+.book-card:hover img {
+    /* Optional: verify if image needs any specific hover, usually container lift is enough */
+    transform: scale(1.02);
+    /* Subtle zoom */
+}
+
+.book-info {
+    display: none;
+}
+
+/* Delete Button */
+.delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef5350;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+}
+
+.book-card:hover .delete-btn {
+    opacity: 1;
+    top: 5px;
+    right: 5px;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    /* Higher than sticky header */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f1f5f9;
+}
+
+/* Poster Header Styles */
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center horizontally */
+    justify-content: center;
+    margin-bottom: 40px;
+    /* Increased margin for impact */
+    padding: 80px 5px 0 5px;
+    /* Increased top padding from 40px to 80px */
+    text-align: center;
+}
+
+.title-container {
+    position: relative;
+    display: inline-block;
+}
+
+.username-line {
+    position: absolute;
+    right: -40px;
+    /* Shifted further right */
+    bottom: -30px;
+    /* Position at bottom right */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* Align to right */
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.at-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: #4a5568;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.name-input {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    width: 100px;
+    outline: none;
+    color: #666;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.name-input:focus {
+    border-color: #aaa;
+    background: #fff;
+}
+
+.title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 60px;
+    /* Enhanced size */
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1.1;
+    color: #2d3748;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 18px;
+    color: #374151;
+}
+
+.close-btn {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+/* Poster Layout Updates for Footer */
+/* 让footer能覆盖在poster底部 */
+.poster {
+    position: relative;
+}
+
+/* 给瀑布流预留footer高度，避免内容被盖住 */
+.waterfall-wrap {
+    position: relative;
+    padding-bottom: 96px;
+    /* >= footer高度一点点，避免内容被遮住太多 */
+}
+
+/* 更长的渐隐遮罩：把图片底部慢慢“擦掉” */
+.waterfall-wrap::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* 直接到最底部 */
+    height: 280px;
+    /* Increased from 160px for a taller fade */
+    pointer-events: none;
+
+    background: linear-gradient(to bottom,
+            rgba(253, 252, 248, 0) 0%,
+            rgba(253, 252, 248, .35) 35%,
+            rgba(253, 252, 248, .75) 70%,
+            rgba(253, 252, 248, 1) 100%);
+}
+
+/* 底部收口条 */
+.poster-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 88px;
+    /* 稍微加高一点更自然 */
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 18px 22px;
+
+    border-top: none;
+    /* 去掉硬分界 */
+    background: linear-gradient(to bottom,
+            rgba(253, 252, 248, 0) 0%,
+            rgba(253, 252, 248, .92) 35%,
+            rgba(253, 252, 248, 1) 100%);
+}
+
+.footer-left {
+    font-weight: 600;
+    opacity: .85;
+}
+
+.footer-right {
+    font-size: 14px;
+    opacity: .65;
+}
+
+.close-btn:hover {
+    background: #e2e8f0;
+    color: #333;
+}
+
+.search-results-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+}
+
+.result-item {
+    cursor: pointer;
+    text-align: center;
+}
+
+.result-item img {
+    width: 100%;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+}
+
+.result-item:hover img {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.result-title {
+    font-size: 11px;
+    margin-top: 8px;
+    color: #64748b;
+}
+
+/* Utility for hidden file input */
+.btn-upload input[type=file] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的年度阅读</title>
+    <meta name="referrer" content="no-referrer">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app" class="main-container">
+        <div class="input-group">
+            <input class="search-input" v-model="query" @keyup.enter="searchBook" placeholder="输入书名搜索，回车确认">
+            <button class="btn-search" @click="searchBook" :disabled="loading">
+                {{ loading ? '...' : '🔍' }}
+            </button>
+
+            <button class="btn-upload">
+                📂
+                <input type="file" accept="image/*" @change="handleFileUpload">
+            </button>
+
+            <button class="btn-export" @click="exportImage" :disabled="exporting">
+                {{ exporting ? '生成中...' : '🖼️' }}
+            </button>
+        </div>
+
+        <!-- 📸 Poster Area Start -->
+        <div id="poster" class="poster">
+            <header class="header">
+                <div class="title-container">
+                    <div class="title">2025 Reading Recap</div>
+                    <div class="username-line">
+                        <span class="at-name">@{{ username || 'YourName' }}</span>
+                        <input type="text" v-model="username" placeholder="输入你的名字" class="name-input"
+                            data-html2canvas-ignore>
+                    </div>
+                </div>
+            </header>
+
+            <div class="waterfall-wrap">
+                <div class="waterfall">
+                    <div v-for="(book, index) in myBooks" :key="book.id" class="book-card">
+                        <!-- Delete button is hidden during export via CSS or logic if needed, but CSS hover handles it for UI -->
+                        <div class="delete-btn" @click="removeBook(index)" data-html2canvas-ignore>×</div>
+                        <img :src="book.cover" referrerPolicy="no-referrer" crossorigin="anonymous"
+                            @error="handleImageError">
+                        <!-- Book info deleted as per request -->
+                    </div>
+                </div>
+            </div>
+
+            <footer class="poster-footer">
+                <div class="footer-left">2025 Reading Recap</div>
+                <div class="footer-right">@{{ username || 'YourName' }} · {{ myBooks.length }} books</div>
+            </footer>
+        </div>
+        <!-- 📸 Poster Area End -->
+
+        <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>选择版本</h3>
+                    <button class="close-btn" @click="showModal = false">×</button>
+                </div>
+                <div class="search-results-list">
+                    <div v-for="item in searchResults" :key="item.cover" class="result-item" @click="selectBook(item)">
+                        <img :src="item.cover" referrerPolicy="no-referrer" @error="handleImageError">
+                        <div class="result-title">{{ item.title }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const query = ref('');
+                const loading = ref(false);
+                const exporting = ref(false);
+                const myBooks = ref([]);
+                const searchResults = ref([]);
+                const showModal = ref(false);
+                const username = ref(''); // Default empty or user can enter
+
+                const WORKER_URL = 'https://falling-sun-969d.sparrowz0116.workers.dev/';
+
+                const searchBook = async () => {
+                    if (!query.value.trim()) return;
+                    loading.value = true;
+
+                    try {
+                        const response = await fetch(`${WORKER_URL}?q=${encodeURIComponent(query.value)}`);
+                        const data = await response.json();
+
+                        if (data && data.length > 0) {
+                            searchResults.value = data;
+                            showModal.value = true;
+                        } else {
+                            alert('没有找到这本书，试着换个关键词（可以试一下副标题或原作名），或者直接上传图片吧！');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('搜索出错了');
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const selectBook = (bookItem) => {
+                    myBooks.value.push({
+                        id: Date.now(),
+                        title: bookItem.title,
+                        cover: bookItem.cover
+                    });
+                    showModal.value = false;
+                    query.value = '';
+                    searchResults.value = [];
+                };
+
+                const handleFileUpload = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        myBooks.value.push({
+                            id: Date.now(),
+                            title: '自定义上传',
+                            cover: e.target.result
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                };
+
+                const removeBook = (index) => {
+                    myBooks.value.splice(index, 1);
+                };
+
+                const handleImageError = (e) => {
+                    const img = e.target;
+                    const currentSrc = img.src;
+
+                    if (currentSrc.includes('/l/public/')) {
+                        img.src = currentSrc.replace('/l/public/', '/s/public/');
+                    }
+                    else {
+                        img.src = 'https://via.placeholder.com/150x220?text=No+Cover';
+                    }
+                    img.onerror = null;
+                };
+
+                // 🟢 导出图片功能
+                const exportImage = async () => {
+                    if (myBooks.value.length === 0) {
+                        alert('先加几本书再导出吧~');
+                        return;
+                    }
+                    exporting.value = true;
+
+                    await nextTick();
+
+                    // 获取要截图的区域
+                    const element = document.getElementById('poster');
+
+                    // 保存原有样式
+                    const originalPadding = element.style.padding;
+                    const originalBackground = element.style.background;
+                    const originalBorder = element.style.border;
+
+                    // 临时应用背景样式 (纯米白 + 边框) 以便截图
+                    element.style.padding = '40px';
+                    element.style.background = '#fdfcf8'; // 偏米白
+                    element.style.border = '12px solid #e0dfd8'; // 外侧框线
+
+                    try {
+                        const canvas = await html2canvas(element, {
+                            scale: 2, // 提高清晰度
+                            useCORS: true, // 允许跨域图片
+                            allowTaint: true,
+                            backgroundColor: null, // 我们已经设置了 element background
+                            ignoreElements: (element) => {
+                                // 忽略带有 data-html2canvas-ignore 属性的元素
+                                return element.hasAttribute('data-html2canvas-ignore');
+                            }
+                        });
+
+                        const link = document.createElement('a');
+                        link.download = '我的年度书单.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    } catch (err) {
+                        console.error('Export failed:', err);
+                        alert('导出图片失败，可能是图片跨域问题。建议直接截图保存。');
+                    } finally {
+                        // 恢复样式
+                        element.style.padding = originalPadding;
+                        element.style.background = originalBackground;
+                        element.style.border = originalBorder;
+                        exporting.value = false;
+                    }
+                };
+
+                return {
+                    query, loading, exporting, myBooks, searchResults, showModal,
+                    searchBook, selectBook, handleFileUpload, removeBook,
+                    handleImageError, exportImage,
+                    username
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
