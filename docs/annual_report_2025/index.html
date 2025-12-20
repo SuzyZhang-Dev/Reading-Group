@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的年度阅读</title>
+    <title>Annual Reading Report 2025</title>
     <meta name="referrer" content="no-referrer">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -161,6 +162,33 @@
                     img.onerror = null;
                 };
 
+                const initDragSort = async () => {
+                    await nextTick();
+                    const el = document.querySelector('.waterfall');
+                    if (!el || el.__sortable_inited) return;
+
+                    el.__sortable_inited = true;
+
+                    new Sortable(el, {
+                        animation: 150,
+                        ghostClass: 'drag-ghost',
+                        chosenClass: 'drag-chosen',
+                        dragClass: 'drag-dragging',
+
+                        // 建议：只允许拖拽封面图片，避免误点删除按钮
+                        handle: 'img',
+                        filter: '.delete-btn, input, button',
+                        preventOnFilter: true,
+
+                        onEnd: (evt) => {
+                            if (evt.oldIndex === evt.newIndex) return;
+                            const arr = myBooks.value;
+                            const [moved] = arr.splice(evt.oldIndex, 1);
+                            arr.splice(evt.newIndex, 0, moved);
+                        }
+                    });
+                };
+
                 // 🟢 导出图片功能
                 const exportImage = async () => {
                     if (myBooks.value.length === 0) {
@@ -212,6 +240,7 @@
                     }
                 };
 
+                initDragSort();
                 return {
                     query, loading, exporting, myBooks, searchResults, showModal,
                     searchBook, selectBook, handleFileUpload, removeBook,

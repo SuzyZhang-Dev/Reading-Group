@@ -130,8 +130,8 @@ button {
 
 /* Waterfall Layout - Smaller Images via more columns */
 .waterfall {
-    column-count: 7;
-    /* Increased from 5 to 7 for smaller images */
+    column-count: 9;
+    /* Increased from 7 to 9 to reduce width by ~20% */
     column-gap: 2px;
     /* Tight gap */
     padding: 0 2px;
@@ -139,25 +139,25 @@ button {
 
 @media (max-width: 1400px) {
     .waterfall {
-        column-count: 6;
+        column-count: 8;
     }
 }
 
 @media (max-width: 1100px) {
     .waterfall {
-        column-count: 5;
+        column-count: 6;
     }
 }
 
 @media (max-width: 900px) {
     .waterfall {
-        column-count: 4;
+        column-count: 5;
     }
 }
 
 @media (max-width: 700px) {
     .waterfall {
-        column-count: 3;
+        column-count: 4;
     }
 
     body {
@@ -169,7 +169,7 @@ button {
 
 @media (max-width: 500px) {
     .waterfall {
-        column-count: 2;
+        column-count: 3;
     }
 }
 
@@ -248,6 +248,23 @@ button {
     opacity: 1;
     top: 5px;
     right: 5px;
+}
+
+.book-card {
+    cursor: grab;
+}
+
+.book-card:active {
+    cursor: grabbing;
+}
+
+.drag-ghost {
+    opacity: 0.35;
+}
+
+.drag-chosen {
+    outline: 2px dashed rgba(0, 0, 0, .18);
+    outline-offset: 2px;
 }
 
 /* Modal */
@@ -375,53 +392,55 @@ button {
 /* 让footer能覆盖在poster底部 */
 .poster {
     position: relative;
+    background: #fdfcf8;
 }
 
 /* 给瀑布流预留footer高度，避免内容被盖住 */
+:root {
+    --paper: #fdfcf8;
+    --footerH: 88px;
+    --fadeH: 140px;
+    /* 关键：别太大，140~180 一般最自然 */
+}
+
+/* 给瀑布流预留footer高度 */
 .waterfall-wrap {
     position: relative;
-    padding-bottom: 96px;
-    /* >= footer高度一点点，避免内容被遮住太多 */
+    padding-bottom: calc(var(--footerH) + 8px);
 }
 
-/* 更长的渐隐遮罩：把图片底部慢慢“擦掉” */
-.waterfall-wrap::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* 直接到最底部 */
-    height: 280px;
-    /* Increased from 160px for a taller fade */
-    pointer-events: none;
 
-    background: linear-gradient(to bottom,
-            rgba(253, 252, 248, 0) 0%,
-            rgba(253, 252, 248, .35) 35%,
-            rgba(253, 252, 248, .75) 70%,
-            rgba(253, 252, 248, 1) 100%);
-}
 
-/* 底部收口条 */
 .poster-footer {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-
-    height: 88px;
-    /* 稍微加高一点更自然 */
+    height: var(--footerH);
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     padding: 18px 22px;
 
+    background: var(--paper);
     border-top: none;
-    /* 去掉硬分界 */
+    z-index: 20;
+    /* Ensure footer covers content if needed */
+}
+
+/* ✅ Gradient attached to footer top */
+.poster-footer::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    /* Sits exactly on top of the footer */
+    height: var(--fadeH);
+    pointer-events: none;
     background: linear-gradient(to bottom,
             rgba(253, 252, 248, 0) 0%,
-            rgba(253, 252, 248, .92) 35%,
+            rgba(253, 252, 248, .55) 70%,
             rgba(253, 252, 248, 1) 100%);
 }
 
