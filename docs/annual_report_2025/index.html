@@ -31,6 +31,15 @@
             <button class="btn-export" @click="exportImage" :disabled="exporting">
                 {{ exporting ? '生成中...' : '🖼️' }}
             </button>
+
+            <button class="btn-archive" @click="exportArchive" title="导出存档(JSON)">
+                💾
+            </button>
+
+            <button class="btn-upload" title="导入存档(JSON)">
+                📥
+                <input type="file" accept="application/json" @change="importArchive" data-html2canvas-ignore>
+            </button>
         </div>
 
         <!-- 📸 Poster Area Start -->
@@ -240,12 +249,86 @@
                     }
                 };
 
+                const ARCHIVE_SCHEMA = 'moon-night-reading-archive';
+                const ARCHIVE_VERSION = 1;
+
+                const downloadJson = (obj, filename) => {
+                    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                };
+
+                const exportArchive = () => {
+                    const archive = {
+                        schema: ARCHIVE_SCHEMA,
+                        version: ARCHIVE_VERSION,
+                        savedAt: new Date().toISOString(),
+                        username: username.value || '',
+                        books: myBooks.value.map((b, i) => ({
+                            id: b.id,
+                            title: b.title || '',
+                            cover: b.cover,   // URL 或 dataURL（你上传封面就是 dataURL）
+                            order: i
+                        }))
+                    };
+
+                    const safeName = (username.value || 'YourName').replace(/[^\w-]+/g, '_');
+                    downloadJson(archive, `reading-archive-2025-${safeName}.json`);
+                };
+
+                const importArchive = (event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        try {
+                            const data = JSON.parse(String(reader.result || '{}'));
+
+                            if (data.schema !== ARCHIVE_SCHEMA) {
+                                alert('这不是本项目的存档文件（schema 不匹配）');
+                                return;
+                            }
+                            if (!Array.isArray(data.books)) {
+                                alert('存档格式不正确：books 缺失');
+                                return;
+                            }
+
+                            // 恢复
+                            username.value = data.username || '';
+                            myBooks.value = data.books
+                                .slice()
+                                .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                                .map(b => ({
+                                    id: b.id ?? Date.now() + Math.random(),
+                                    title: b.title || '',
+                                    cover: b.cover || ''
+                                }));
+
+                            alert('导入成功 ✅');
+                        } catch (e) {
+                            console.error(e);
+                            alert('导入失败：JSON 解析错误');
+                        }
+                    };
+                    reader.readAsText(file);
+
+                    // 允许重复选择同一个文件也能触发 change
+                    event.target.value = '';
+                };
+
                 initDragSort();
                 return {
                     query, loading, exporting, myBooks, searchResults, showModal,
                     searchBook, selectBook, handleFileUpload, removeBook,
                     handleImageError, exportImage,
-                    username
+                    username,
+                    exportArchive,
+                    importArchive
                 };
             }
         }).mount('#app');
