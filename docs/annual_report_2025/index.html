@@ -88,10 +88,24 @@
                 </div>
             </div>
         </div>
+
+        <div class="help-sidebar">
+            <div class="help-trigger">
+                <span class="icon">💡</span>
+                <span class="text">使用<br>指南</span>
+            </div>
+            <div class="help-popover" v-if="helpData.length > 0">
+                <div class="help-item" v-for="(item, index) in helpData" :key="index">
+                    <div class="help-title">{{ item.title }}</div>
+                    <div class="help-content">{{ item.content }}</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const { createApp, ref, nextTick } = Vue;
+        const { createApp, ref, nextTick, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -102,6 +116,7 @@
                 const searchResults = ref([]);
                 const showModal = ref(false);
                 const username = ref(''); // Default empty or user can enter
+                const helpData = ref([]);
 
                 const WORKER_URL = 'https://falling-sun-969d.sparrowz0116.workers.dev/';
 
@@ -321,12 +336,24 @@
                     event.target.value = '';
                 };
 
+                onMounted(async () => {
+                    try {
+                        const response = await fetch('./help.json');
+                        if (response.ok) {
+                            helpData.value = await response.json();
+                        }
+                    } catch (error) {
+                        console.warn('Help data load failed:', error);
+                    }
+                });
+
                 initDragSort();
                 return {
                     query, loading, exporting, myBooks, searchResults, showModal,
                     searchBook, selectBook, handleFileUpload, removeBook,
                     handleImageError, exportImage,
                     username,
+                    helpData,
                     exportArchive,
                     importArchive
                 };
