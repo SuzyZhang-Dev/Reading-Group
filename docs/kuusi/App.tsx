@@ -136,9 +136,16 @@ const App: React.FC = () => {
                 <p className="font-chinese text-lg opacity-70 max-w-3xl mx-auto leading-relaxed bold font-light">
                     与月言书·明亮的夜晚🌕<br />
                 </p>
-                <p className="mt-12 font-christmas text-2xl tracking-[0.5em] opacity-40">
+                <p className="font-chinese text-lg opacity-70 max-w-3xl mx-auto leading-relaxed bold font-light">
+                    制作人：小胖雀儿<br />
+                </p>
+                <p className="mt-12 font-christmas text-lg tracking-[0.5em] opacity-40">
                     MERRY CHRISTMAS · 2025
                 </p>
+                <p className="font-chinese text-lg opacity-70 max-w-3xl mx-auto leading-relaxed bold font-light">
+                    私人阅读群聊书评·请勿商用和转载。<br />
+                </p>
+
             </footer>
 
             {/* Modal for Book Details */}
