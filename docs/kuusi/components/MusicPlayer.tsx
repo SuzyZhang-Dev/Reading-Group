@@ -2,13 +2,17 @@
 import React, { useState, useRef } from 'react';
 import { Music, Music2 } from 'lucide-react';
 import { COLORS } from '../constants';
+import musicUrl from '../background.mp3';
 
 const MusicPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Import music file to let Vite handle the path and hashing
+
+
   // Royalty-free Christmas music link (placeholder)
-  const musicUrl = "/Users/yue/Desktop/MoonNight_ReadingGroup/docs/kuusi/backgroud.mp3";
+  // const musicUrl = "/Users/yue/Desktop/MoonNight_ReadingGroup/docs/kuusi/backgroud.mp3";
 
   const toggleMusic = () => {
     if (!audioRef.current) {
