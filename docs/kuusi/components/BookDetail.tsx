@@ -49,11 +49,8 @@ const BookDetail: React.FC<BookDetailProps> = ({ record, onClose }) => {
               <span className="font-semibold text-lg">{record.member}</span>
             </div>
 
-            <div className="p-4 rounded-xl border-l-4 italic" style={{ backgroundColor: COLORS.rusticWood + '15', borderColor: COLORS.poinsettaRed, color: COLORS.darkTruffle }}>
-              <div className="flex gap-1 mb-2">
-                {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current text-yellow-500" />)}
-              </div>
-              <p className="leading-relaxed whitespace-pre-wrap">
+            <div className="p-4 rounded-xl border-l-4" style={{ backgroundColor: COLORS.rusticWood + '15', borderColor: COLORS.poinsettaRed, color: COLORS.darkTruffle }}>
+              <p className="leading-relaxed whitespace-pre-wrap font-chinese">
                 {record.review}
               </p>
             </div>

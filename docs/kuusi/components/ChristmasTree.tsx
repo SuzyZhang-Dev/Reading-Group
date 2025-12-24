@@ -12,10 +12,10 @@ interface ChristmasTreeProps {
   accentColor: string;
 }
 
-const ChristmasTree: React.FC<ChristmasTreeProps> = ({ 
-  treeId, 
-  records, 
-  onBookClick, 
+const ChristmasTree: React.FC<ChristmasTreeProps> = ({
+  treeId,
+  records,
+  onBookClick,
   palette,
   accentColor
 }) => {
@@ -37,12 +37,12 @@ const ChristmasTree: React.FC<ChristmasTreeProps> = ({
     <div className="relative w-[340px] min-h-[550px] flex flex-col items-center justify-end pb-12 group">
       {/* Star at the top */}
       <div className="mb-6 relative">
-        <Star 
-          className="w-12 h-12 fill-current animate-pulse relative z-10" 
-          style={{ 
+        <Star
+          className="w-12 h-12 fill-current animate-pulse relative z-10"
+          style={{
             color: accentColor,
             filter: `drop-shadow(0 0 15px ${accentColor})`
-          }} 
+          }}
         />
         <div className="absolute inset-0 w-12 h-12 bg-white/20 blur-xl rounded-full scale-150 animate-ping opacity-20"></div>
       </div>
@@ -51,13 +51,13 @@ const ChristmasTree: React.FC<ChristmasTreeProps> = ({
       <div className="flex flex-col items-center gap-2 w-full">
         {sortedRecords.map((record, idx) => {
           const color = palette[idx % palette.length];
-          
+
           return (
             <button
               key={`${treeId}-${idx}`}
               onClick={() => onBookClick(record)}
               className="relative px-2 py-1 transition-all duration-300 hover:scale-125 hover:z-20 font-chinese whitespace-nowrap group/book"
-              style={{ 
+              style={{
                 fontSize: '1.2rem',
                 fontWeight: 'bold',
                 color: COLORS.candle,
@@ -71,9 +71,9 @@ const ChristmasTree: React.FC<ChristmasTreeProps> = ({
               title={`${record.member}: ${record.bookTitle}`}
             >
               <span className="relative z-10">{formatTitle(record.bookTitle)}</span>
-              
+
               {/* Subtle underline on hover */}
-              <div 
+              <div
                 className="absolute bottom-0 left-0 w-0 h-0.5 transition-all duration-300 group-hover/book:w-full"
                 style={{ backgroundColor: color }}
               />
@@ -83,9 +83,9 @@ const ChristmasTree: React.FC<ChristmasTreeProps> = ({
       </div>
 
       {/* Trunk */}
-      <div 
-        className="w-12 h-16 mt-4 rounded-b-lg shadow-2xl opacity-80" 
-        style={{ 
+      <div
+        className="w-12 h-16 mt-4 rounded-b-lg shadow-2xl opacity-80"
+        style={{
           background: `linear-gradient(to bottom, ${COLORS.warmWood}, ${COLORS.darkTruffle})`,
           boxShadow: `0 10px 20px rgba(0,0,0,0.4)`
         }}
@@ -93,15 +93,16 @@ const ChristmasTree: React.FC<ChristmasTreeProps> = ({
 
       {/* Group Label */}
       <div className="absolute -bottom-6 w-full text-center">
-         <h2 className="font-christmas text-4xl font-bold tracking-tight" style={{ color: accentColor }}>
-           Tree {treeId.replace('号', '')}
-         </h2>
-         <p className="font-chinese text-[11px] mt-1 opacity-60 tracking-widest uppercase" style={{ color: COLORS.candle }}>
-           {records.length} COLLECTED VOLUMES
-         </p>
+        <h2 className="font-christmas text-4xl font-bold tracking-tight" style={{ color: accentColor }}>
+          Tree {treeId.replace('号', '')}
+        </h2>
+        <p className="font-chinese text-[11px] mt-1 opacity-60 tracking-widest uppercase" style={{ color: COLORS.candle }}>
+          {records.length} COLLECTED VOLUMES
+        </p>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes colorFlow {
           0%, 100% { 
             opacity: 0.7; 
