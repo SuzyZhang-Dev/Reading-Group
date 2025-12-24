@@ -8,12 +8,12 @@ const MusicPlayer: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Royalty-free Christmas music link (placeholder)
-  const musicUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"; 
+  const musicUrl = "/Users/yue/Desktop/MoonNight_ReadingGroup/docs/kuusi/backgroud.mp3";
 
   const toggleMusic = () => {
     if (!audioRef.current) {
-        audioRef.current = new Audio(musicUrl);
-        audioRef.current.loop = true;
+      audioRef.current = new Audio(musicUrl);
+      audioRef.current.loop = true;
     }
 
     if (isPlaying) {
