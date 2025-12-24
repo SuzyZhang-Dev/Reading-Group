@@ -133,11 +133,11 @@ const App: React.FC = () => {
                     <Gift className="w-10 h-10 animate-bounce" style={{ color: COLORS.poinsettaRed }} />
                     <div className="w-32 h-px bg-gradient-to-l from-transparent to-white/20"></div>
                 </div>
-                <p className="font-chinese text-lg opacity-70 max-w-3xl mx-auto leading-relaxed italic font-light">
+                <p className="font-chinese text-lg opacity-70 max-w-3xl mx-auto leading-relaxed bold font-light">
                     与月言书·明亮的夜晚🌕<br />
                 </p>
                 <p className="mt-12 font-christmas text-2xl tracking-[0.5em] opacity-40">
-                    MERRY CHRISTMAS · 2024
+                    MERRY CHRISTMAS · 2025
                 </p>
             </footer>
 
