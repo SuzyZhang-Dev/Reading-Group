@@ -111,7 +111,7 @@ const App = () => {
 
       // 临时导出样式（你可以换成你的暗黑主题）
       element.style.padding = "40px";
-      element.style.border = "12px solid rgba(255,255,255,0.10)";
+      element.style.border = "10px solid rgba(255,255,255,0.10)";
 
       // 再等一帧让样式生效
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
