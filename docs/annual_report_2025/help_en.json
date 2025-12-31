@@ -1,0 +1,18 @@
+[
+    {
+        "title": "How to search?",
+        "content": "Currently integrated with Douban. Most books can be found. If a specific title fails, try keywords, subtitles, or the original title. Multiple versions may appear. If not found, you can upload a cover manually!"
+    },
+    {
+        "title": "How to reorder?",
+        "content": "Drag and drop book covers to rearrange them. Click the × button on the top right of a cover to delete it."
+    },
+    {
+        "title": "How to export?",
+        "content": "Click the 🖼️ button to generate an image. The layout (3-6 items per row) depends on your browser width—resize the window to adjust the output!"
+    },
+    {
+        "title": "About Archive",
+        "content": "Click 💾 to save your progress as a JSON file. Click 📥 to import and restore it later."
+    }
+]

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -18,7 +18,8 @@
 <body>
     <div id="app" class="main-container">
         <div class="input-group">
-            <input class="search-input" v-model="query" @keyup.enter="searchBook" placeholder="输入书名搜索，回车确认">
+            <input class="search-input" v-model="query" @keyup.enter="searchBook"
+                placeholder="Search for a book, enter to confirm">
             <button class="btn-search" @click="searchBook" :disabled="loading">
                 {{ loading ? '...' : '🔍' }}
             </button>
@@ -29,20 +30,19 @@
             </button>
 
             <button class="btn-export" @click="exportImage" :disabled="exporting">
-                {{ exporting ? '生成中...' : '🖼️' }}
+                {{ exporting ? 'Generating...' : '🖼️' }}
             </button>
 
-            <button class="btn-archive" @click="exportArchive" title="导出存档(JSON)">
+            <button class="btn-archive" @click="exportArchive" title="Export Archive (JSON)">
                 💾
             </button>
 
-            <button class="btn-upload" title="导入存档(JSON)">
+            <button class="btn-upload" title="Import Archive (JSON)">
                 📥
                 <input type="file" accept="application/json" @change="importArchive" data-html2canvas-ignore>
             </button>
-
-            <a href="en.html" class="btn-lang" title="Switch to English Version">
-                EN
+            <a href="index.html" class="btn-lang" title="切换回中文版">
+                中
             </a>
         </div>
 
@@ -53,7 +53,7 @@
                     <div class="title">2025 Reading Recap</div>
                     <div class="username-line">
                         <span class="at-name">@{{ username || 'YourName' }}</span>
-                        <input type="text" v-model="username" placeholder="输入你的名字" class="name-input"
+                        <input type="text" v-model="username" placeholder="Enter your name" class="name-input"
                             data-html2canvas-ignore>
                     </div>
                 </div>
@@ -64,8 +64,7 @@
                     <div v-for="(book, index) in myBooks" :key="book.id" class="book-card">
                         <!-- Delete button is hidden during export via CSS or logic if needed, but CSS hover handles it for UI -->
                         <div class="delete-btn" @click="removeBook(index)" data-html2canvas-ignore>×</div>
-                        <img :src="book.cover" referrerPolicy="no-referrer" crossorigin="anonymous"
-                            @error="handleImageError">
+                        <img :src="book.cover" referrerPolicy="no-referrer" @error="handleImageError">
                         <!-- Book info deleted as per request -->
                     </div>
                 </div>
@@ -81,11 +80,11 @@
         <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>选择版本</h3>
+                    <h3>Select Version</h3>
                     <button class="close-btn" @click="showModal = false">×</button>
                 </div>
                 <div class="search-results-list">
-                    <div v-for="item in searchResults" :key="item.cover" class="result-item" @click="selectBook(item)">
+                    <div v-for="item in searchResults" :key="item.id" class="result-item" @click="selectBook(item)">
                         <img :src="item.cover" referrerPolicy="no-referrer" @error="handleImageError">
                         <div class="result-title">{{ item.title }}</div>
                     </div>
@@ -96,7 +95,7 @@
         <div class="help-sidebar">
             <div class="help-trigger">
                 <span class="icon">💡</span>
-                <span class="text">使用<br>指南</span>
+                <span class="text">User<br>Guide</span>
             </div>
             <div class="help-popover" v-if="helpData.length > 0">
                 <div class="help-item" v-for="(item, index) in helpData" :key="index">
@@ -122,7 +121,7 @@
                 const username = ref(''); // Default empty or user can enter
                 const helpData = ref([]);
 
-                const WORKER_URL = 'https://falling-sun-969d.sparrowz0116.workers.dev/';
+                const WORKER_URL = 'https://shiny-dawn-38bd.sparrowz0116.workers.dev/';
 
                 const searchBook = async () => {
                     if (!query.value.trim()) return;
@@ -136,11 +135,11 @@
                             searchResults.value = data;
                             showModal.value = true;
                         } else {
-                            alert('没有找到这本书，试着换个关键词（可以试一下副标题或原作名），或者直接上传图片吧！');
+                            alert('Book not found. Try a different keyword (subtitle or original title), or upload an image directly!');
                         }
                     } catch (err) {
                         console.error(err);
-                        alert('搜索出错了');
+                        alert('Search error');
                     } finally {
                         loading.value = false;
                     }
@@ -165,7 +164,7 @@
                     reader.onload = (e) => {
                         myBooks.value.push({
                             id: Date.now(),
-                            title: '自定义上传',
+                            title: 'Custom Upload',
                             cover: e.target.result
                         });
                     };
@@ -203,7 +202,7 @@
                         chosenClass: 'drag-chosen',
                         dragClass: 'drag-dragging',
 
-                        // 建议：只允许拖拽封面图片，避免误点删除按钮
+                        // Suggestion: Only allow dragging cover images to avoid accidental delete button clicks
                         handle: 'img',
                         filter: '.delete-btn, input, button',
                         preventOnFilter: true,
@@ -217,50 +216,50 @@
                     });
                 };
 
-                // 🟢 导出图片功能
+                // 🟢 Export Image Function
                 const exportImage = async () => {
                     if (myBooks.value.length === 0) {
-                        alert('先加几本书再导出吧~');
+                        alert('Add some books before exporting~');
                         return;
                     }
                     exporting.value = true;
 
                     await nextTick();
 
-                    // 获取要截图的区域
+                    // Get the area to capture
                     const element = document.getElementById('poster');
 
-                    // 保存原有样式
+                    // Save original styles
                     const originalPadding = element.style.padding;
                     const originalBackground = element.style.background;
                     const originalBorder = element.style.border;
 
-                    // 临时应用背景样式 (纯米白 + 边框) 以便截图
+                    // Temporarily apply background style (off-white + border) for screenshot
                     element.style.padding = '40px';
-                    element.style.background = '#fdfcf8'; // 偏米白
-                    element.style.border = '12px solid #e0dfd8'; // 外侧框线
+                    element.style.background = '#fdfcf8'; // Off-white
+                    element.style.border = '12px solid #e0dfd8'; // Outer border
 
                     try {
                         const canvas = await html2canvas(element, {
-                            scale: 2, // 提高清晰度
-                            useCORS: true, // 允许跨域图片
+                            scale: 2, // Improve clarity
+                            useCORS: true, // Allow cross-origin images
                             allowTaint: true,
-                            backgroundColor: null, // 我们已经设置了 element background
+                            backgroundColor: null, // We have already set element background
                             ignoreElements: (element) => {
-                                // 忽略带有 data-html2canvas-ignore 属性的元素
+                                // Ignore elements with data-html2canvas-ignore attribute
                                 return element.hasAttribute('data-html2canvas-ignore');
                             }
                         });
 
                         const link = document.createElement('a');
-                        link.download = '我的年度书单.png';
+                        link.download = 'My_Reading_List.png';
                         link.href = canvas.toDataURL('image/png');
                         link.click();
                     } catch (err) {
                         console.error('Export failed:', err);
-                        alert('导出图片失败，可能是图片跨域问题。建议直接截图保存。');
+                        alert('Export failed, possibly due to cross-origin image issues. Please try taking a screenshot manually.');
                     } finally {
-                        // 恢复样式
+                        // Restore styles
                         element.style.padding = originalPadding;
                         element.style.background = originalBackground;
                         element.style.border = originalBorder;
@@ -290,7 +289,7 @@
                         books: myBooks.value.map((b, i) => ({
                             id: b.id,
                             title: b.title || '',
-                            cover: b.cover,   // URL 或 dataURL（你上传封面就是 dataURL）
+                            cover: b.cover,   // URL or dataURL (uploaded covers are dataURL)
                             order: i
                         }))
                     };
@@ -309,15 +308,15 @@
                             const data = JSON.parse(String(reader.result || '{}'));
 
                             if (data.schema !== ARCHIVE_SCHEMA) {
-                                alert('这不是本项目的存档文件（schema 不匹配）');
+                                alert('This is not a valid archive file for this project (schema mismatch)');
                                 return;
                             }
                             if (!Array.isArray(data.books)) {
-                                alert('存档格式不正确：books 缺失');
+                                alert('Invalid archive format: books missing');
                                 return;
                             }
 
-                            // 恢复
+                            // Restore
                             username.value = data.username || '';
                             myBooks.value = data.books
                                 .slice()
@@ -328,21 +327,21 @@
                                     cover: b.cover || ''
                                 }));
 
-                            alert('导入成功 ✅');
+                            alert('Import successful ✅');
                         } catch (e) {
                             console.error(e);
-                            alert('导入失败：JSON 解析错误');
+                            alert('Import failed: JSON parse error');
                         }
                     };
                     reader.readAsText(file);
 
-                    // 允许重复选择同一个文件也能触发 change
+                    // Allow selecting the same file again to trigger change
                     event.target.value = '';
                 };
 
                 onMounted(async () => {
                     try {
-                        const response = await fetch('./help.json');
+                        const response = await fetch('./help_en.json');
                         if (response.ok) {
                             helpData.value = await response.json();
                         }

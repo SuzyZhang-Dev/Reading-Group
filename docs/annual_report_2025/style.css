@@ -614,3 +614,31 @@ button {
     line-height: 1.5;
     padding-left: 10px;
 }
+
+/* 语言切换按钮样式 */
+.btn-lang {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: 8px;
+    background: #4a4a4a;
+    /* 深灰色背景，与浅色按钮区分 */
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    vertical-align: middle;
+    /* 保证与 input-group 其他元素对齐 */
+}
+
+.btn-lang:hover {
+    background: #666;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
