@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>与月言书 · 读书会档案</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #f5f0e8;
+            --paper-dark: #ede7d9;
+            --ink: #2a2318;
+            --ink-light: #6b5f4e;
+            --ink-faint: #a89880;
+            --accent: #8b4513;
+            --accent-light: #c4783a;
+            --line: #d8cfc2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 300;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 12px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .site-logo {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            color: var(--ink-faint);
+        }
+
+        .site-logo span {
+            color: var(--paper);
+            font-style: normal;
+        }
+
+        .header-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        /* ── Layout ── */
+        .page-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px 100px;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 80px 0 56px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 48px;
+        }
+
+        .hero-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-family: 'Lora', serif;
+            font-size: 2.6rem;
+            font-weight: 500;
+            line-height: 1.25;
+            margin-bottom: 20px;
+        }
+
+        .hero-desc {
+            font-size: 0.95rem;
+            line-height: 2;
+            color: var(--ink-light);
+            max-width: 560px;
+        }
+
+        /* ── Episode list ── */
+        .list-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .list-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .ep-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ep-card {
+            display: grid;
+            grid-template-columns: 96px 1fr auto;
+            align-items: center;
+            gap: 0 28px;
+            padding: 28px 16px;
+            margin: 0 -16px;
+            border-bottom: 1px solid var(--line);
+            text-decoration: none;
+            color: inherit;
+            border-radius: 3px;
+            transition: background 0.18s;
+            position: relative;
+        }
+
+        .ep-card:hover {
+            background: var(--paper-dark);
+        }
+
+        .ep-card:hover .ep-arrow {
+            color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .ep-vol {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--accent);
+            letter-spacing: 0.03em;
+        }
+
+        .ep-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.66rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.08em;
+            margin-top: 6px;
+        }
+
+        .ep-title {
+            font-family: 'Lora', serif;
+            font-size: 1.35rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: var(--ink);
+        }
+
+        .ep-arrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--ink-faint);
+            transition: color 0.18s, transform 0.18s;
+        }
+
+        .state-msg {
+            text-align: center;
+            padding: 60px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.08em;
+        }
+
+        @media (max-width: 600px) {
+            .hero-title {
+                font-size: 1.9rem;
+            }
+
+            .ep-card {
+                grid-template-columns: 72px 1fr;
+                gap: 4px 16px;
+            }
+
+            .ep-arrow {
+                display: none;
+            }
+
+            .ep-title {
+                font-size: 1.1rem;
+                grid-column: 1 / -1;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--paper-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--line);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--ink-faint);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="site-logo">与月言书 · 读书会档案</div>
+        <div class="header-tag">ARCHIVE</div>
+    </header>
+
+    <div class="page-wrap">
+
+        <section class="hero">
+            <div class="hero-eyebrow">与月言书 · 线上共读</div>
+            <h1 class="hero-title">读书会档案</h1>
+            <p class="hero-desc">
+                每一次共读，都是一群人围着一本书，把各自的生活也摊开来读。这里收录每一期的语音记录与文字书评，留作往后的回声。
+            </p>
+        </section>
+
+        <div class="list-label">全部期次</div>
+        <div class="ep-list" id="epList">
+            <div class="state-msg" id="stateMsg">加载中…</div>
+        </div>
+
+    </div>
+
+    <script>
+        async function loadEpisodes() {
+            const list = document.getElementById('epList');
+            const msg = document.getElementById('stateMsg');
+            try {
+                const res = await fetch('./episodes.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const eps = await res.json();
+
+                // 新的排在前面
+                eps.sort((a, b) => b.vol - a.vol);
+
+                msg.remove();
+                const frag = document.createDocumentFragment();
+                eps.forEach(ep => {
+                    const volStr = 'Vol.' + String(ep.vol).padStart(2, '0');
+                    const dateStr = (ep.date || '').replace(/-/g, ' · ');
+                    const a = document.createElement('a');
+                    a.className = 'ep-card';
+                    a.href = `./episodes/${ep.slug}/index.html`;
+                    a.innerHTML = `
+                        <div class="ep-left">
+                            <div class="ep-vol">${volStr}</div>
+                            <div class="ep-date">${dateStr}</div>
+                        </div>
+                        <div class="ep-title">${ep.title}</div>
+                        <div class="ep-arrow">→</div>
+                    `;
+                    frag.appendChild(a);
+                });
+                list.appendChild(frag);
+            } catch (err) {
+                msg.textContent = `期次列表加载失败：${err.message}`;
+                console.error(err);
+            }
+        }
+
+        loadEpisodes();
+    </script>
+</body>
+
+</html>

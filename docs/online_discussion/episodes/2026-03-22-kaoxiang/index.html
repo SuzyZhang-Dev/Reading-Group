@@ -76,6 +76,122 @@
             color: var(--accent-light);
         }
 
+        /* ── Logo + Vol 切换 ── */
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .vol-switch {
+            position: relative;
+        }
+
+        .vol-trigger {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            color: var(--paper);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .vol-trigger:hover {
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+
+        .vol-trigger .vol-caret {
+            width: 9px;
+            height: 9px;
+            fill: currentColor;
+            transition: transform 0.2s;
+        }
+
+        .vol-switch.is-open .vol-caret {
+            transform: rotate(180deg);
+        }
+
+        .vol-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 240px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            box-shadow: 0 8px 28px rgba(42, 35, 24, 0.25);
+            padding: 6px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
+            z-index: 200;
+        }
+
+        .vol-switch.is-open .vol-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .vol-item {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 2px;
+            text-decoration: none;
+            color: var(--ink);
+            transition: background 0.15s;
+        }
+
+        .vol-item:hover {
+            background: var(--paper-dark);
+        }
+
+        .vol-item .vol-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            flex-shrink: 0;
+        }
+
+        .vol-item .vol-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.82rem;
+            color: var(--ink-light);
+            line-height: 1.4;
+        }
+
+        .vol-item.is-current {
+            background: var(--paper-dark);
+            cursor: default;
+        }
+
+        .vol-item.is-current .vol-name {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .vol-item.is-current::after {
+            content: '当前';
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.1em;
+            align-self: center;
+        }
+
         /* ── Layout ── */
         .page-wrap {
             max-width: 860px;
@@ -540,13 +656,26 @@
 <body>
 
     <header class="site-header">
-        <div class="site-logo">与月言书 · 读书会档案</div>
+        <div class="logo-group">
+            <div class="site-logo">与月言书 · 读书会档案</div>
+            <div class="vol-switch" id="volSwitch">
+                <button class="vol-trigger" id="volTrigger" aria-haspopup="true" aria-expanded="false">
+                    <span>Vol.01</span>
+                    <svg class="vol-caret" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                    </svg>
+                </button>
+                <div class="vol-menu" id="volMenu" role="menu">
+                    <!-- 由 JS 从 ../../episodes.json 动态渲染 -->
+                </div>
+            </div>
+        </div>
         <div class="header-nav">
             <a href="#episode-title">语音记录</a>
             <span class="divider">·</span>
             <a href="#reviews-section">文字书评</a>
-            <!--        <span class="divider">|</span>-->
-            <!--        <a class="back-link" href="../../index.html">← 所有期次</a>-->
+            <span class="divider">|</span>
+            <a class="back-link" href="../../index.html">← 所有期次</a>
         </div>
     </header>
 
@@ -829,10 +958,75 @@
         window.addEventListener('scroll', updatePlayerSticky, { passive: true });
 
         // ─────────────────────────────────────────────
+        //  Vol 切换下拉菜单（期次列表来自 ../../episodes.json）
+        // ─────────────────────────────────────────────
+        const volSwitch = document.getElementById('volSwitch');
+        const volTrigger = document.getElementById('volTrigger');
+
+        async function renderVolSwitch() {
+            const menu = document.getElementById('volMenu');
+            const label = volTrigger.querySelector('span');
+            try {
+                const res = await fetch('../../episodes.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const eps = await res.json();
+
+                // 当前期次：从 URL 路径里的文件夹名判断
+                const path = location.pathname.replace(/\/index\.html?$/, '');
+                const curSlug = path.split('/').filter(Boolean).pop();
+
+                // 新的排在前面
+                eps.sort((a, b) => b.vol - a.vol);
+
+                menu.innerHTML = '';
+                eps.forEach(ep => {
+                    const volStr = 'Vol.' + String(ep.vol).padStart(2, '0');
+                    const isCurrent = ep.slug === curSlug;
+                    const a = document.createElement('a');
+                    a.className = 'vol-item' + (isCurrent ? ' is-current' : '');
+                    a.setAttribute('role', 'menuitem');
+                    if (isCurrent) {
+                        a.setAttribute('aria-current', 'true');
+                        label.textContent = volStr;
+                    } else {
+                        a.href = `../${ep.slug}/index.html`;
+                    }
+                    a.innerHTML =
+                        `<span class="vol-num">${volStr}</span>` +
+                        `<span class="vol-name">${ep.title}</span>`;
+                    menu.appendChild(a);
+                });
+            } catch (err) {
+                console.error('期次列表加载失败：', err);
+            }
+        }
+
+        volTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = volSwitch.classList.toggle('is-open');
+            volTrigger.setAttribute('aria-expanded', open);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!volSwitch.contains(e.target)) {
+                volSwitch.classList.remove('is-open');
+                volTrigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                volSwitch.classList.remove('is-open');
+                volTrigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // ─────────────────────────────────────────────
         //  启动
         // ─────────────────────────────────────────────
         loadTranscript();
         loadReviews();
+        renderVolSwitch();
     </script>
 </body>
 
