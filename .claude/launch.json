@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "annual-report",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8753", "--directory", "docs/annual_report_2025"],
+      "port": 8753
+    }
+  ]
+}

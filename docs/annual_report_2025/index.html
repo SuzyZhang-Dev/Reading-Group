@@ -50,7 +50,17 @@
         <div id="poster" class="poster">
             <header class="header">
                 <div class="title-container">
-                    <div class="title">2025 Reading Recap</div>
+                    <div class="title-line">
+                        <span class="title">{{ recapTitle }}</span>
+                        <span class="title-controls" data-html2canvas-ignore>
+                            <select v-model="month" class="month-select">
+                                <option value="/">月份：/（不显示）</option>
+                                <option v-for="m in monthNames" :key="m" :value="m">{{ m }}</option>
+                            </select>
+                            <input type="text" v-model="year" class="year-input" placeholder="年份">
+                            <button type="button" class="year-clear" @click="year = ''" title="清空年份（仅显示月份）">仅月份</button>
+                        </span>
+                    </div>
                     <div class="username-line">
                         <span class="at-name">@{{ username || 'YourName' }}</span>
                         <input type="text" v-model="username" placeholder="输入你的名字" class="name-input"
@@ -69,10 +79,20 @@
                         <!-- Book info deleted as per request -->
                     </div>
                 </div>
+
+                <div class="reading-stats">
+                    <div class="stats-main">
+                        合计 <b>{{ readingStats.books }}</b> 本 · <b>{{ readingStats.words }}</b> 万字
+                    </div>
+                    <div class="stats-sub">
+                        {{ readingStats.fiction }} 本虚构 · {{ readingStats.nonfiction }} 本非虚构 · {{ readingStats.female }}
+                        本女作家
+                    </div>
+                </div>
             </div>
 
             <footer class="poster-footer">
-                <div class="footer-left">2025 Reading Recap</div>
+                <div class="footer-left">{{ recapTitle }}</div>
                 <div class="footer-right">@{{ username || 'YourName' }} · {{ myBooks.length }} books</div>
             </footer>
         </div>
@@ -109,7 +129,7 @@
     </div>
 
     <script>
-        const { createApp, ref, nextTick, onMounted } = Vue;
+        const { createApp, ref, computed, nextTick, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -121,6 +141,45 @@
                 const showModal = ref(false);
                 const username = ref(''); // Default empty or user can enter
                 const helpData = ref([]);
+
+                // 标题：可自选年份 / 月份（月份用英文，"/" 表示只显示年份）
+                const monthNames = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                const year = ref('2026');
+                const month = ref('June'); // "/" => 仅显示年份
+                const recapTitle = computed(() => {
+                    const y = String(year.value || '').trim();
+                    const hasMonth = month.value && month.value !== '/';
+                    const hasYear = y && y !== '/';
+                    // 月份在前、年份在后，任一为空则省略，留空则只显示 "Reading Recap"
+                    const prefix = [hasMonth ? month.value : '', hasYear ? y : '']
+                        .filter(Boolean).join(' ');
+                    return prefix ? `${prefix} Reading Recap` : 'Reading Recap';
+                });
+
+                // 阅读数据统计（来自《阅读记录（2026版）》2026年 sheet，按月份汇总）
+                // 字段：books 本数 / words 字数(万字) / fiction 虚构 / nonfiction 非虚构 / female 女作家
+                const monthlyStats = {
+                    January: { books: 10, words: 163.57, fiction: 6, nonfiction: 4, female: 6 },
+                    February: { books: 12, words: 181.08, fiction: 4, nonfiction: 8, female: 10 },
+                    March: { books: 9, words: 87.44, fiction: 5, nonfiction: 4, female: 7 },
+                    April: { books: 7, words: 71.9, fiction: 2, nonfiction: 5, female: 7 },
+                    May: { books: 6, words: 73.31, fiction: 4, nonfiction: 2, female: 4 },
+                    June: { books: 16, words: 226.6, fiction: 11, nonfiction: 5, female: 13 }
+                };
+                const readingStats = computed(() => {
+                    const acc = { books: 0, words: 0, fiction: 0, nonfiction: 0, female: 0 };
+                    const add = (s) => { for (const k in acc) acc[k] += (s[k] || 0); };
+                    if (month.value && month.value !== '/' && monthlyStats[month.value]) {
+                        add(monthlyStats[month.value]);          // 指定月份
+                    } else {
+                        Object.values(monthlyStats).forEach(add); // 仅年份 / 未匹配 → 全年汇总
+                    }
+                    acc.words = Math.round(acc.words * 100) / 100;
+                    return acc;
+                });
 
                 const WORKER_URL = 'https://falling-sun-969d.sparrowz0116.workers.dev/';
 
@@ -358,6 +417,7 @@
                     handleImageError, exportImage,
                     username,
                     helpData,
+                    monthNames, year, month, recapTitle, readingStats,
                     exportArchive,
                     importArchive
                 };

@@ -351,14 +351,58 @@ button {
     background: #fff;
 }
 
+.title-line {
+    display: block;
+    margin-bottom: 5px;
+}
+
 .title {
     font-family: 'Dancing Script', cursive;
     font-size: 60px;
     /* Enhanced size */
     font-weight: 700;
-    margin-bottom: 5px;
     line-height: 1.1;
     color: #2d3748;
+}
+
+.title-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    vertical-align: middle;
+}
+
+.month-select,
+.year-input,
+.year-clear {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    outline: none;
+    color: #666;
+    background: rgba(255, 255, 255, 0.5);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.year-clear {
+    cursor: pointer;
+}
+
+.year-clear:hover {
+    border-color: #aaa;
+    background: #fff;
+}
+
+.year-input {
+    width: 60px;
+}
+
+.month-select:focus,
+.year-input:focus {
+    border-color: #aaa;
+    background: #fff;
 }
 
 .modal-header {
@@ -406,7 +450,50 @@ button {
 /* 给瀑布流预留footer高度 */
 .waterfall-wrap {
     position: relative;
-    padding-bottom: calc(var(--footerH) + 8px);
+    /* 底部仅预留 footer 自身高度 + 少量间距，避免被绝对定位的 footer 盖住 */
+    padding-bottom: 72px;
+}
+
+.reading-stats {
+    position: relative;
+    z-index: 21;
+    /* 紧贴封面（行底已对齐）；底部留白由 .waterfall-wrap 的 padding 统一预留 */
+    margin: 0 22px;
+    padding-top: 20px;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #4a5568;
+}
+
+/* ✅ 末端逐渐模糊：渐隐层挂在统计区正上方，封面淡出后再显示总结 */
+.reading-stats::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    right: -22px;
+    bottom: 100%;
+    /* 直接落在统计区上方，向上覆盖底部封面 */
+    height: var(--fadeH);
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+            rgba(253, 252, 248, 0) 0%,
+            rgba(253, 252, 248, .55) 70%,
+            rgba(253, 252, 248, 1) 100%);
+}
+
+.reading-stats .stats-main {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.reading-stats .stats-main b {
+    color: #2d3748;
+}
+
+.reading-stats .stats-sub {
+    margin-top: 10px;
+    font-size: 18px;
+    opacity: .8;
 }
 
 
@@ -416,11 +503,12 @@ button {
     left: 0;
     right: 0;
     bottom: 0;
-    height: var(--footerH);
+    /* 高度贴合文字，避免上方留出大块空白 */
+    height: auto;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    padding: 18px 22px;
+    padding: 16px 22px;
 
     background: var(--paper);
     border-top: none;

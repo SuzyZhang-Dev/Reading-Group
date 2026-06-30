@@ -32,3 +32,16 @@ print(f"Number of duplicate books: {duplicate_book_types}")
 print("Duplicate books list:")
 for book, count in duplicate_books.items():
     print(f"《{book}》: {count}次")
+
+#4 total books in whole csv
+# Get all cells from column C onwards, flatten to a single Series, then drop NaN
+all_cells = df.iloc[:, 2:21].stack().dropna().astype(str)  # Column C (index 2) to T (index 19)
+all_cells = all_cells[all_cells.str.strip() != '']
+
+all_books_csv = []
+for text in all_cells:
+    books = re.findall(r'《(.*?)》', text)
+    all_books_csv.extend(books)
+
+total_books_csv = len(all_books_csv)
+print(f"Total books in whole csv: {total_books_csv}")
