@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8753", "--directory", "docs/annual_report_2025"],
       "port": 8753
+    },
+    {
+      "name": "docs",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8756", "--directory", "docs"],
+      "port": 8756
     }
   ]
 }
