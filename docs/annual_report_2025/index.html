@@ -25,7 +25,7 @@
 
             <button class="btn-upload">
                 📂
-                <input type="file" accept="image/*" @change="handleFileUpload">
+                <input type="file" accept="image/*" multiple @change="handleFileUpload">
             </button>
 
             <button class="btn-export" @click="exportImage" :disabled="exporting">
@@ -81,12 +81,26 @@
                 </div>
 
                 <div class="reading-stats">
-                    <div class="stats-main">
-                        合计 <b>{{ readingStats.books }}</b> 本 · <b>{{ readingStats.words }}</b> 万字
-                    </div>
-                    <div class="stats-sub">
-                        {{ readingStats.fiction }} 本虚构 · {{ readingStats.nonfiction }} 本非虚构 · {{ readingStats.female }}
-                        本女作家
+                    <template v-if="!hideStats">
+                        <div class="stats-main">
+                            合计 <b>{{ stats.books }}</b> 本 · <b>{{ stats.words }}</b> 万字
+                        </div>
+                        <div class="stats-sub">
+                            {{ stats.fiction }} 本虚构 · {{ stats.nonfiction }} 本非虚构 · {{ stats.female }} 本女作家
+                        </div>
+                    </template>
+                    <div class="stats-controls" data-html2canvas-ignore>
+                        <div class="stats-fields" v-if="!hideStats">
+                            <label>本数<input type="number" min="0" step="1" v-model.number="stats.books"></label>
+                            <label>万字<input type="number" min="0" step="0.1" v-model.number="stats.words"></label>
+                            <label>虚构<input type="number" min="0" step="1" v-model.number="stats.fiction"></label>
+                            <label>非虚构<input type="number" min="0" step="1" v-model.number="stats.nonfiction"></label>
+                            <label>女作家<input type="number" min="0" step="1" v-model.number="stats.female"></label>
+                            <button type="button" class="stats-refill" @click="refillStats" title="按上方所选月份重新填充数字">按月份重填</button>
+                        </div>
+                        <label class="stats-hide">
+                            <input type="checkbox" v-model="hideStats"> 不显示此条目
+                        </label>
                     </div>
                 </div>
             </div>
@@ -129,7 +143,7 @@
     </div>
 
     <script>
-        const { createApp, ref, computed, nextTick, onMounted } = Vue;
+        const { createApp, ref, reactive, computed, nextTick, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -138,6 +152,12 @@
                 const exporting = ref(false);
                 const myBooks = ref([]);
                 const searchResults = ref([]);
+
+                // 生成会话内唯一 id，作为 v-for 的 key。
+                // 用单调递增计数器，避免 Date.now() 在快速连续添加时重复，
+                // 重复的 key 会让 Vue 的列表 diff 出错：拖动时封面重复出现、或某张卡片“拖不动”。
+                let __uidSeq = 0;
+                const uid = () => `${Date.now().toString(36)}-${(++__uidSeq).toString(36)}`;
                 const showModal = ref(false);
                 const username = ref(''); // Default empty or user can enter
                 const helpData = ref([]);
@@ -167,9 +187,11 @@
                     March: { books: 9, words: 87.44, fiction: 5, nonfiction: 4, female: 7 },
                     April: { books: 7, words: 71.9, fiction: 2, nonfiction: 5, female: 7 },
                     May: { books: 6, words: 73.31, fiction: 4, nonfiction: 2, female: 4 },
-                    June: { books: 16, words: 226.6, fiction: 11, nonfiction: 5, female: 13 }
+                    June: { books: 16, words: 226.6, fiction: 11, nonfiction: 5, female: 13 },
+                    July: { books: 13, words: 180.42, fiction: 3, nonfiction: 10, female: 10 }
                 };
-                const readingStats = computed(() => {
+                // 按选中月份 / 全年汇总出一组数据，作为手动输入的默认值
+                const computeMonthStats = () => {
                     const acc = { books: 0, words: 0, fiction: 0, nonfiction: 0, female: 0 };
                     const add = (s) => { for (const k in acc) acc[k] += (s[k] || 0); };
                     if (month.value && month.value !== '/' && monthlyStats[month.value]) {
@@ -179,7 +201,12 @@
                     }
                     acc.words = Math.round(acc.words * 100) / 100;
                     return acc;
-                });
+                };
+                // 统计数字改为手动输入：初始用月份数据带出，之后可自由编辑
+                const stats = reactive(computeMonthStats());
+                const hideStats = ref(false);                       // 「不显示此条目」
+                // 便捷按钮：按当前所选月份重新填充（不会在换月份时自动覆盖手动值）
+                const refillStats = () => Object.assign(stats, computeMonthStats());
 
                 const WORKER_URL = 'https://falling-sun-969d.sparrowz0116.workers.dev/';
 
@@ -207,7 +234,7 @@
 
                 const selectBook = (bookItem) => {
                     myBooks.value.push({
-                        id: Date.now(),
+                        id: uid(),
                         title: bookItem.title,
                         cover: bookItem.cover
                     });
@@ -217,18 +244,20 @@
                 };
 
                 const handleFileUpload = (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
+                    const files = Array.from(event.target.files || []);
+                    if (!files.length) return;
 
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        myBooks.value.push({
-                            id: Date.now(),
-                            title: '自定义上传',
-                            cover: e.target.result
-                        });
-                    };
-                    reader.readAsDataURL(file);
+                    files.forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            myBooks.value.push({
+                                id: uid(),
+                                title: '自定义上传',
+                                cover: e.target.result
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
                     event.target.value = '';
                 };
 
@@ -268,10 +297,20 @@
                         preventOnFilter: true,
 
                         onEnd: (evt) => {
-                            if (evt.oldIndex === evt.newIndex) return;
+                            const { oldIndex, newIndex, item, from } = evt;
+                            if (oldIndex === newIndex) return;
+
+                            // 先撤销 Sortable 对真实 DOM 的移动，交由 Vue 依据数据重新渲染，
+                            // 否则 DOM 已移动 + 数组再变更会让 keyed diff 产生重复封面。
+                            if (newIndex > oldIndex) {
+                                from.insertBefore(item, from.children[oldIndex]);
+                            } else {
+                                from.insertBefore(item, from.children[oldIndex + 1]);
+                            }
+
                             const arr = myBooks.value;
-                            const [moved] = arr.splice(evt.oldIndex, 1);
-                            arr.splice(evt.newIndex, 0, moved);
+                            const [moved] = arr.splice(oldIndex, 1);
+                            arr.splice(newIndex, 0, moved);
                         }
                     });
                 };
@@ -346,6 +385,8 @@
                         version: ARCHIVE_VERSION,
                         savedAt: new Date().toISOString(),
                         username: username.value || '',
+                        stats: { ...stats },
+                        hideStats: hideStats.value,
                         books: myBooks.value.map((b, i) => ({
                             id: b.id,
                             title: b.title || '',
@@ -378,11 +419,17 @@
 
                             // 恢复
                             username.value = data.username || '';
+                            if (data.stats && typeof data.stats === 'object') {
+                                for (const k of ['books', 'words', 'fiction', 'nonfiction', 'female']) {
+                                    if (data.stats[k] !== undefined && data.stats[k] !== null) stats[k] = data.stats[k];
+                                }
+                            }
+                            if (typeof data.hideStats === 'boolean') hideStats.value = data.hideStats;
                             myBooks.value = data.books
                                 .slice()
                                 .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
                                 .map(b => ({
-                                    id: b.id ?? Date.now() + Math.random(),
+                                    id: uid(), // 始终重新分配唯一 id，避免旧存档里重复/缺失的 id 破坏拖拽
                                     title: b.title || '',
                                     cover: b.cover || ''
                                 }));
@@ -417,7 +464,8 @@
                     handleImageError, exportImage,
                     username,
                     helpData,
-                    monthNames, year, month, recapTitle, readingStats,
+                    monthNames, year, month, recapTitle,
+                    stats, hideStats, refillStats,
                     exportArchive,
                     importArchive
                 };

@@ -496,7 +496,73 @@ button {
     opacity: .8;
 }
 
+/* 统计数字手动编辑控件（仅编辑时可见，导出时忽略） */
+.stats-controls {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
 
+.stats-fields {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.stats-fields label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #718096;
+}
+
+.stats-fields input {
+    width: 58px;
+    padding: 4px 6px;
+    border: 1px solid #d8cfc2;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #2d3748;
+    background: #fff;
+    text-align: center;
+}
+
+.stats-fields input:focus {
+    outline: none;
+    border-color: #8b4513;
+}
+
+.stats-refill {
+    padding: 4px 10px;
+    border: 1px solid #d8cfc2;
+    border-radius: 6px;
+    background: #f5f0e8;
+    font-size: 12px;
+    color: #6b5f4e;
+    cursor: pointer;
+}
+
+.stats-refill:hover {
+    border-color: #8b4513;
+    color: #8b4513;
+}
+
+.stats-hide {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #718096;
+    cursor: pointer;
+}
+
+.stats-hide input {
+    cursor: pointer;
+}
 
 .poster-footer {
     position: absolute;
