@@ -72,7 +72,7 @@
 
         /* ── Layout ── */
         .page-wrap {
-            max-width: 860px;
+            max-width: 1040px;
             margin: 0 auto;
             padding: 0 24px 100px;
         }
@@ -108,14 +108,14 @@
             max-width: 560px;
         }
 
-        /* ── Episode list ── */
+        /* ── List label ── */
         .list-label {
             font-size: 0.72rem;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--ink-faint);
             font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -128,67 +128,117 @@
             background: var(--line);
         }
 
-        .ep-list {
+        /* ── Gallery ── */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 40px 28px;
+        }
+
+        .poster-card {
             display: flex;
             flex-direction: column;
-        }
-
-        .ep-card {
-            display: grid;
-            grid-template-columns: 96px 1fr auto;
-            align-items: center;
-            gap: 0 28px;
-            padding: 28px 16px;
-            margin: 0 -16px;
-            border-bottom: 1px solid var(--line);
             text-decoration: none;
             color: inherit;
-            border-radius: 3px;
-            transition: background 0.18s;
+        }
+
+        .poster-frame {
             position: relative;
+            aspect-ratio: 1414 / 2000;
+            background: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(42, 35, 24, 0.14);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
         }
 
-        .ep-card:hover {
-            background: var(--paper-dark);
+        .poster-card:hover .poster-frame {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 36px rgba(42, 35, 24, 0.26);
         }
 
-        .ep-card:hover .ep-arrow {
-            color: var(--accent);
-            transform: translateX(4px);
+        .poster-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
-        .ep-vol {
+        .poster-vol {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 2;
+            background: rgba(42, 35, 24, 0.82);
+            color: var(--paper);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.05rem;
-            font-weight: 400;
-            color: var(--accent);
-            letter-spacing: 0.03em;
+            font-size: 0.62rem;
+            letter-spacing: 0.1em;
+            padding: 4px 9px;
+            border-radius: 2px;
         }
 
-        .ep-date {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.66rem;
-            color: var(--ink-faint);
-            letter-spacing: 0.08em;
-            margin-top: 6px;
+        /* 海报缺失时的占位块 */
+        .poster-fallback {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 24px;
+            text-align: center;
+            background:
+                radial-gradient(circle at 50% 32%, var(--paper-dark), var(--paper));
         }
 
-        .ep-title {
-            font-family: 'Lora', serif;
-            font-size: 1.35rem;
+        .poster-fallback .fb-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.15rem;
             font-weight: 500;
-            line-height: 1.4;
+            line-height: 1.5;
             color: var(--ink);
         }
 
-        .ep-arrow {
+        .poster-fallback .fb-note {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.1rem;
+            font-size: 0.6rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
             color: var(--ink-faint);
-            transition: color 0.18s, transform 0.18s;
+        }
+
+        .poster-fallback::before {
+            content: '';
+            width: 26px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .poster-meta {
+            padding: 14px 2px 0;
+        }
+
+        .poster-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.08rem;
+            font-weight: 500;
+            line-height: 1.45;
+            color: var(--ink);
+        }
+
+        .poster-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.64rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.08em;
+            margin-top: 7px;
         }
 
         .state-msg {
+            grid-column: 1 / -1;
             text-align: center;
             padding: 60px 0;
             font-family: 'JetBrains Mono', monospace;
@@ -202,18 +252,13 @@
                 font-size: 1.9rem;
             }
 
-            .ep-card {
-                grid-template-columns: 72px 1fr;
-                gap: 4px 16px;
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 26px 16px;
             }
 
-            .ep-arrow {
-                display: none;
-            }
-
-            .ep-title {
-                font-size: 1.1rem;
-                grid-column: 1 / -1;
+            .poster-title {
+                font-size: 0.95rem;
             }
         }
 
@@ -254,13 +299,21 @@
         </section>
 
         <div class="list-label">全部期次</div>
-        <div class="ep-list" id="epList">
+        <div class="gallery" id="epList">
             <div class="state-msg" id="stateMsg">加载中…</div>
         </div>
 
     </div>
 
     <script>
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
         async function loadEpisodes() {
             const list = document.getElementById('epList');
             const msg = document.getElementById('stateMsg');
@@ -277,16 +330,29 @@
                 eps.forEach(ep => {
                     const volStr = 'Vol.' + String(ep.vol).padStart(2, '0');
                     const dateStr = (ep.date || '').replace(/-/g, ' · ');
+                    // 海报约定：./posters/<slug>.jpg，缺失则显示占位块
+                    const poster = ep.poster
+                        ? `./posters/${ep.poster}`
+                        : `./posters/${ep.slug}.jpg`;
+                    const title = escHtml(ep.title);
+
                     const a = document.createElement('a');
-                    a.className = 'ep-card';
+                    a.className = 'poster-card';
                     a.href = `./episodes/${ep.slug}/index.html`;
                     a.innerHTML = `
-                        <div class="ep-left">
-                            <div class="ep-vol">${volStr}</div>
-                            <div class="ep-date">${dateStr}</div>
+                        <div class="poster-frame">
+                            <span class="poster-vol">${volStr}</span>
+                            <img src="${poster}" alt="${title} 海报" loading="lazy"
+                                 onerror="this.style.display='none';this.parentElement.querySelector('.poster-fallback').style.display='flex';">
+                            <div class="poster-fallback" style="display:none">
+                                <div class="fb-title">${title}</div>
+                                <div class="fb-note">海报待补</div>
+                            </div>
                         </div>
-                        <div class="ep-title">${ep.title}</div>
-                        <div class="ep-arrow">→</div>
+                        <div class="poster-meta">
+                            <div class="poster-title">${title}</div>
+                            <div class="poster-date">${dateStr}</div>
+                        </div>
                     `;
                     frag.appendChild(a);
                 });
