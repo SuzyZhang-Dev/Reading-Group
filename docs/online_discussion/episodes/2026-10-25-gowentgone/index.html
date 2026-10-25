@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>与月言书·共读记录</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #f5f0e8;
+            --paper-dark: #ede7d9;
+            --ink: #2a2318;
+            --ink-light: #6b5f4e;
+            --ink-faint: #a89880;
+            --accent: #8b4513;
+            --accent-light: #c4783a;
+            --line: #d8cfc2;
+            --playing: #fff3dc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 300;
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            background: var(--ink);
+            color: var(--paper);
+            padding: 12px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .site-logo {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            color: var(--ink-faint);
+        }
+
+        .site-logo span {
+            color: var(--paper);
+            font-style: normal;
+        }
+
+        .back-link {
+            font-size: 0.75rem;
+            color: var(--ink-faint);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-light);
+        }
+
+        /* ── Logo + Vol 切换 ── */
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .vol-switch {
+            position: relative;
+        }
+
+        .vol-trigger {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            color: var(--paper);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .vol-trigger:hover {
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+
+        .vol-trigger .vol-caret {
+            width: 9px;
+            height: 9px;
+            fill: currentColor;
+            transition: transform 0.2s;
+        }
+
+        .vol-switch.is-open .vol-caret {
+            transform: rotate(180deg);
+        }
+
+        .vol-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 240px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            box-shadow: 0 8px 28px rgba(42, 35, 24, 0.25);
+            padding: 6px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
+            z-index: 200;
+        }
+
+        .vol-switch.is-open .vol-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .vol-item {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 2px;
+            text-decoration: none;
+            color: var(--ink);
+            transition: background 0.15s;
+        }
+
+        .vol-item:hover {
+            background: var(--paper-dark);
+        }
+
+        .vol-item .vol-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+            flex-shrink: 0;
+        }
+
+        .vol-item .vol-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.82rem;
+            color: var(--ink-light);
+            line-height: 1.4;
+        }
+
+        .vol-item.is-current {
+            background: var(--paper-dark);
+            cursor: default;
+        }
+
+        .vol-item.is-current .vol-name {
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        .vol-item.is-current::after {
+            content: '当前';
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.1em;
+            align-self: center;
+        }
+
+        /* ── Layout ── */
+        .page-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* ── Episode header ── */
+        .episode-header {
+            padding: 48px 0 32px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 40px;
+        }
+
+        .episode-meta {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .episode-meta .ep-num {
+            color: var(--accent);
+            font-weight: 400;
+        }
+
+        .episode-title {
+            font-family: 'Lora', serif;
+            font-size: 2rem;
+            font-weight: 500;
+            line-height: 1.3;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .episode-subtitle {
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            line-height: 1.8;
+        }
+
+        .participants {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .participant-tag {
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            color: var(--ink-light);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Discussion topics ── */
+        .topics-section {
+            margin-bottom: 40px;
+            background: var(--paper-dark);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 28px 32px;
+        }
+
+        .topics-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topics-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .topics-intro {
+            font-size: 0.82rem;
+            line-height: 1.9;
+            color: var(--ink-light);
+            font-weight: 300;
+            margin-bottom: 28px;
+            padding-bottom: 22px;
+            border-bottom: 1px dashed var(--line);
+        }
+
+        .topic {
+            margin-bottom: 26px;
+        }
+
+        .topic:last-child {
+            margin-bottom: 0;
+        }
+
+        .topic-title {
+            font-family: 'Lora', serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .topic-q {
+            display: grid;
+            grid-template-columns: 24px 1fr;
+            gap: 0 8px;
+            font-size: 0.9rem;
+            line-height: 1.9;
+            color: var(--ink-light);
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .topic-q:last-child {
+            margin-bottom: 0;
+        }
+
+        .topic-q .qnum {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-light);
+            padding-top: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .topics-section {
+                padding: 22px 20px;
+            }
+        }
+
+        /* ── Audio player ── */
+        .audio-section {
+            background: var(--ink);
+            border-radius: 4px;
+            padding: 20px 24px;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 53px;
+            z-index: 90;
+            box-shadow: 0 4px 24px rgba(42, 35, 24, 0.15);
+        }
+
+        .audio-section.is-unstuck {
+            position: static;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        font-size: 0.68rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        font-family: 'JetBrains Mono',
+        monospace;
+        margin-bottom: 12px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--accent);
+            color: var(--paper);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .play-btn:hover {
+            background: var(--accent-light);
+        }
+
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+
+        .play-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .now-playing {
+            font-size: 0.75rem;
+            color: var(--paper);
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .now-playing em {
+            color: var(--accent-light);
+            font-style: normal;
+        }
+
+        .progress-wrap {
+            position: relative;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+            pointer-events: none;
+        }
+
+        .progress-wrap:hover .progress-bar {
+            background: var(--accent-light);
+        }
+
+        .time-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--ink-faint);
+            margin-top: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ── Transcript ── */
+        .transcript-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .transcript-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .tip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--ink-faint);
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: 0.08em;
+        }
+
+        .tip span {
+            border: 1px solid var(--line);
+            padding: 4px 10px;
+            border-radius: 2px;
+        }
+
+        .transcript {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .segment {
+            display: grid;
+            grid-template-columns: 90px 1fr;
+            gap: 0 20px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line);
+            cursor: pointer;
+            transition: background 0.15s;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .segment:hover {
+            background: var(--paper-dark);
+            padding-left: 8px;
+            padding-right: 8px;
+            margin: 0 -8px;
+        }
+
+        .segment.is-playing {
+            background: var(--playing);
+            padding-left: 8px;
+            padding-right: 8px;
+            margin: 0 -8px;
+        }
+
+        .segment.is-playing::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 2px 0 0 2px;
+        }
+
+        .seg-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-top: 2px;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .seg-speaker {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--accent);
+            white-space: nowrap;
+            letter-spacing: 0.03em;
+        }
+
+        .seg-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.05em;
+        }
+
+        .segment:hover .seg-time {
+            color: var(--accent-light);
+        }
+
+        .seg-text {
+            font-size: 0.92rem;
+            line-height: 2;
+            color: var(--ink);
+            font-weight: 300;
+            white-space: pre-line;
+        }
+
+        /* 豆瓣书目链接（links.json） */
+        .book-link {
+            color: var(--accent);
+            text-decoration: underline dotted;
+            text-decoration-color: var(--accent-light);
+            text-underline-offset: 3px;
+            transition: color 0.15s;
+        }
+
+        .book-link:hover {
+            color: var(--accent-light);
+            text-decoration-style: solid;
+        }
+
+        /* ── Header nav ── */
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .header-nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--ink-faint);
+            padding: 5px 12px;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            transition: all 0.15s;
+        }
+
+        .header-nav a:hover {
+            color: var(--paper);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .header-nav .divider {
+            color: var(--ink-faint);
+            font-size: 0.6rem;
+            opacity: 0.4;
+        }
+
+        /* ── Page nav ── */
+        .page-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+        }
+
+        .page-nav a {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: var(--ink-light);
+            padding: 6px 16px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            transition: all 0.15s;
+        }
+
+        .page-nav a:hover {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        /* ── Reviews section ── */
+        .reviews-section {
+            margin-top: 72px;
+            padding-top: 48px;
+            border-top: 2px solid var(--ink);
+        }
+
+        .reviews-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reviews-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .reviews-masonry {
+            columns: 2;
+            column-gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .reviews-masonry {
+                columns: 1;
+            }
+        }
+
+        .review-card {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            background: var(--paper-dark);
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            padding: 24px 24px 20px;
+            position: relative;
+        }
+
+        /* 大引号装饰 */
+        .review-card::before {
+            content: '\201C';
+            font-family: 'Lora', serif;
+            font-size: 4rem;
+            line-height: 1;
+            color: var(--line);
+            position: absolute;
+            top: 8px;
+            right: 16px;
+            pointer-events: none;
+        }
+
+        .review-author {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-author::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 1px;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .review-text {
+            font-size: 0.88rem;
+            line-height: 1.9;
+            color: var(--ink-light);
+            font-weight: 300;
+            white-space: pre-wrap;
+        }
+
+        /* ── 提及书目 ── */
+        .booklist {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .booklist {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .book-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .book-row .book-title {
+            flex: 1;
+            min-width: 0;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--ink);
+        }
+
+        .book-row .book-author {
+            font-size: 0.8rem;
+            color: var(--ink-light);
+            text-align: right;
+        }
+
+        .book-row .book-country {
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.66rem;
+            letter-spacing: 0.05em;
+            color: var(--ink-faint);
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            padding: 1px 6px;
+        }
+
+        /* ── Loading / Error states ── */
+        .state-msg {
+            text-align: center;
+            padding: 60px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--ink-faint);
+            letter-spacing: 0.08em;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--paper-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--line);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--ink-faint);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="logo-group">
+            <div class="site-logo">与月言书 · 读书会档案</div>
+            <div class="vol-switch" id="volSwitch">
+                <button class="vol-trigger" id="volTrigger" aria-haspopup="true" aria-expanded="false">
+                    <span>Vol.06</span>
+                    <svg class="vol-caret" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                    </svg>
+                </button>
+                <div class="vol-menu" id="volMenu" role="menu">
+                    <!-- 由 JS 从 ../../episodes.json 动态渲染 -->
+                </div>
+            </div>
+        </div>
+        <div class="header-nav">
+            <a href="#episode-title">语音记录</a>
+            <span class="divider">·</span>
+            <a href="#reviews-section">文字书评</a>
+            <span class="divider">·</span>
+            <a href="#booklist-section">提及书目</a>
+            <span class="divider">|</span>
+            <a class="back-link" href="../../index.html">← 所有期次</a>
+        </div>
+    </header>
+
+    <div class="page-wrap">
+
+        <!-- 元数据区域，由 JS 填充 -->
+        <div class="episode-header">
+            <div class="episode-meta" id="epMeta">
+                <span class="ep-num">Vol.06</span>
+                <span>2026 · 10 · 25</span>
+                <span>02:02:17</span>
+            </div>
+            <h1 class="episode-title" id="episode-title">《时世逝》</h1>
+            <div class="participants" id="participants">
+                <!-- 由 JS 动态生成 -->
+            </div>
+        </div>
+
+        <!-- 讨论主题 -->
+        <div class="topics-section">
+            <div class="topics-label">讨论主题</div>
+            <div class="topic">
+                <div class="topic-title">主题一 · 文本设置和角色设定</div>
+                <div class="topic-q"><span class="qnum">1</span><span>作为一部以难民事件为主题的小说，结尾最后落在几个白人好友的聚会和对青年时期的自我剖白上，你觉得燕妮的用意是什么？</span></div>
+                <div class="topic-q"><span class="qnum">2</span><span>关于理查德这个人物形象，你是否觉得燕妮选择他作为叙述的主视角——一种白人知识分子的视角——过于傲慢？你觉得他的虚伪和善良的边界在哪里（即什么地方让你觉得虚伪）？你如何看待这个人物塑造？</span></div>
+                <div class="topic-q"><span class="qnum">3</span><span>很多人批评这本书里包含了太多理查德的性缘关系，你怎么看？你是否觉得这几段情感关系在整个情节的发展中起到了影射或辅助理解情节的作用？这样频频地把理查德的自我经验和难民的体验交叉在一起，你觉得燕妮这样安排是强化了这个角色，还是弱化了？</span></div>
+                <div class="topic-q"><span class="qnum">4</span><span>死在湖里的人这个意象代表什么，或者可以如何解读？为什么要反复写湖？</span></div>
+            </div>
+            <div class="topic">
+                <div class="topic-title">主题二 · 叙事角度的选择和政治情感倾向</div>
+                <div class="topic-q"><span class="qnum">1</span><span>很多人批评燕妮的这本书带有强烈的上位者姿态，你觉得这种角度的叙述不应当存在吗？还是说这样的叙述视角在文学的发声场里太大声了？你觉得这样的写作挤压了真正的受害者的诉说空间吗？这和书里的难民团体在广场上打出的“We become visible”标语冲突吗？这些需要被关注的人本身是否有能力去讲述和形成记录？理查德作为和燕妮本人阶级、年代最为相近的视角，你觉得她选择这样的视角是为了叙述更加准确吗？</span></div>
+                <div class="topic-q"><span class="qnum">2</span><span>你读这本书的时候有感动的时刻吗？读的时候，你更多站在谁的位置上：难民、理查德，还是理查德那些持怀疑态度的朋友？你觉得这和你自己的处境有关吗？对理查德的批评能更加引发人对难民问题的反思吗？如果可以，为什么觉得这样写是“不好”的？</span></div>
+                <div class="topic-q"><span class="qnum">3</span><span>我相信每个人都有自己的“难民时刻”或者“理查德时刻”，你还能回忆起作为一个边缘者的心理吗？如果你曾经是“理查德”，你认为对边缘人的帮助带着怜悯吗？你期望得到什么回报？你的帮助是出于自我满足的目的吗？（或许这可以帮助我们梳理整本书里理查德的所作所为。）</span></div>
+            </div>
+            <div class="topic">
+                <div class="topic-title">主题三 · 书外延伸</div>
+                <div class="topic-q"><span class="qnum">1</span><span>前段时间发生了摩洛哥和西班牙边界的休达难民冲突，德国极右翼政党 AfD 在原东德地区所在州得到超高支持率，法国以勒庞为代表的新势力强调让移民失业后马上离开法国，丹麦对外来移民的用工有超长的白名单和清晰的工种限制，一些国家拒接难民。你是否觉得这样的文本出现，有益于社会去了解复杂的难民问题？</span></div>
+                <div class="topic-q"><span class="qnum">2</span><span>在中国，2023 年发生的朝鲜难民集中遣返、云南缅甸边境的边民问题是否得到了关注？疫情期间广州不少非洲人被房东或酒店赶出、被反复要求检测和隔离，有人流落街头。这些新闻曾经进入过你的视野吗？</span></div>
+                <div class="topic-q"><span class="qnum">3</span><span>一个私人、不专业的体感问题：为什么希腊神话体系能够如此长久地存在、并融入欧洲乃至更多文化圈层的现代写作中，而中国的神话体系好像并没有这样的现象？我之前看到一个帖子讲“中国神的实用性”：灶王爷、妈祖好像更多是作为一种“在世之神”的形象存在，而希腊众神好像已经死去了。你有没有关于中国神话体系运用得比较好的书籍推荐？</span></div>
+            </div>
+        </div>
+
+        <!-- 音频播放器 -->
+        <div class="audio-section">
+            <div class="player-label">音频播放</div>
+            <div class="player-controls">
+                <button class="play-btn" id="playBtn" onclick="togglePlay()">
+                    <svg id="playIcon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                </button>
+                <div class="player-info">
+                    <div class="now-playing" id="nowPlaying">点击下方段落跳转 · 或直接播放（正文从 00:01 开始）</div>
+                    <div class="progress-wrap" id="progressWrap" onclick="seekAudio(event)">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="time-display" id="timeDisplay">00:00 / --:--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文稿 -->
+        <div class="tip"><span>点击任意段落 → 跳转音频</span></div>
+        <div class="transcript-label" id="transcript-section">文字记录</div>
+        <div class="transcript" id="transcript">
+            <div class="state-msg" id="stateMsg">加载中…</div>
+        </div>
+
+        <div class="reviews-section" id="reviews-section">
+            <div class="reviews-label">文字书评</div>
+            <div class="reviews-masonry" id="reviewsMasonry">
+                <div class="state-msg" id="reviewsMsg">加载中…</div>
+            </div>
+        </div>
+
+        <div class="reviews-section" id="booklist-section">
+            <div class="reviews-label">提及书目</div>
+            <div class="booklist" id="bookList">
+                <div class="state-msg" id="bookListMsg">加载中…</div>
+            </div>
+        </div>
+
+    </div>
+
+    <audio id="audioPlayer" preload="metadata">
+        <source src="./audio.m4a" type="audio/mp4">
+    </audio>
+
+    <script>
+        // ─────────────────────────────────────────────
+        //  配置区：每期只需修改这里
+        // ─────────────────────────────────────────────
+        const EPISODE = {
+            audioSrc: './audio.m4a',   // 替换为音频 URL，留空则进入演示模式
+            jsonPath: './record.json',
+            reviewsPath: './reviews.json',
+            linksPath: './links.json',   // 书名 → 豆瓣链接
+            booksPath: './books.json',   // 提及书目：书名 / 作者 / 国籍 / 豆瓣链接
+        };
+
+        // ─────────────────────────────────────────────
+        //  DOM 引用
+        // ─────────────────────────────────────────────
+        const audio = document.getElementById('audioPlayer');
+        const playIcon = document.getElementById('playIcon');
+        const progressBar = document.getElementById('progressBar');
+        const progressWrap = document.getElementById('progressWrap');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const transcriptEl = document.getElementById('transcript');
+        const stateMsg = document.getElementById('stateMsg');
+
+        const PLAY_ICON = `<path d="M8 5v14l11-7z"/>`;
+        const PAUSE_ICON = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+
+        let currentSegment = null;
+        let segments = [];        // DOM 节点缓存，供 timeupdate 查找
+        let demoMode = !EPISODE.audioSrc;
+
+        // 书名 → 豆瓣链接；加载失败时不影响正文和书评显示
+        let bookLinks = {};
+        const linksReady = fetch(EPISODE.linksPath)
+            .then(r => (r.ok ? r.json() : {}))
+            .catch(() => ({}))
+            .then(d => { bookLinks = d || {}; });
+
+        // 先转义，再把有链接的《书名》替换成豆瓣链接
+        function linkify(str) {
+            return escHtml(str).replace(/《([^《》]+)》/g, (m, title) => {
+                const url = bookLinks[title];
+                if (!url) return m;
+                return `<a class="book-link" href="${escHtml(url)}" target="_blank" rel="noopener" title="在豆瓣查看${m}">${m}</a>`;
+            });
+        }
+
+        // ─────────────────────────────────────────────
+        //  音频初始化
+        // ─────────────────────────────────────────────
+        if (EPISODE.audioSrc) {
+            audio.querySelector('source').src = EPISODE.audioSrc;
+            audio.load();
+        }
+
+        // ─────────────────────────────────────────────
+        //  从 record.json 加载并渲染文稿
+        // ─────────────────────────────────────────────
+        async function loadTranscript() {
+            try {
+                const res = await fetch(EPISODE.jsonPath);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                await linksReady;
+
+                stateMsg.remove();
+                renderTranscript(data);
+                renderParticipants(data);
+            } catch (err) {
+                stateMsg.textContent = `文稿加载失败：${err.message}`;
+                console.error(err);
+            }
+        }
+
+        function renderTranscript(data) {
+            const frag = document.createDocumentFragment();
+
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'segment';
+                div.dataset.time = item.seconds;
+                // 点书名链接只打开豆瓣，不跳转音频
+                div.onclick = (e) => { if (e.target.closest('a')) return; jumpTo(div); };
+
+                div.innerHTML = `
+      <div class="seg-left">
+        <span class="seg-speaker">${escHtml(item.speaker)}</span>
+        <span class="seg-time">${escHtml(item.time)}</span>
+      </div>
+      <div class="seg-text">${linkify(item.text)}</div>
+    `;
+                frag.appendChild(div);
+            });
+
+            transcriptEl.appendChild(frag);
+            // 缓存所有 segment 节点，避免 timeupdate 里反复 querySelectorAll
+            segments = Array.from(transcriptEl.querySelectorAll('.segment'));
+        }
+
+        function renderParticipants(data) {
+            const names = [...new Set(data.map(d => d.speaker))];
+            const container = document.getElementById('participants');
+            container.innerHTML =
+                `<span class="participant-tag" style="color:var(--ink-faint);border-color:transparent">讨论人</span>` +
+                names.map(n => `<span class="participant-tag">${escHtml(n)}</span>`).join('');
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // ─────────────────────────────────────────────
+        //  播放器交互
+        // ─────────────────────────────────────────────
+        function formatTime(s) {
+            if (!isFinite(s)) return '--:--';
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = Math.floor(s % 60);
+            if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+            return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        function highlightSegment(el) {
+            if (currentSegment === el) return;
+            if (currentSegment) currentSegment.classList.remove('is-playing');
+            currentSegment = el;
+            el.classList.add('is-playing');
+        }
+
+        function jumpTo(el) {
+            const secs = parseInt(el.dataset.time, 10);
+            const speaker = el.querySelector('.seg-speaker').textContent;
+            const timeStr = el.querySelector('.seg-time').textContent;
+
+            highlightSegment(el);
+            nowPlaying.innerHTML = `<em>${escHtml(speaker)}</em> · ${escHtml(timeStr)}`;
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            if (demoMode) {
+                // 演示模式：仅模拟进度条
+                const totalSecs = 7337; // 2:02:17
+                progressBar.style.width = (secs / totalSecs * 100) + '%';
+                timeDisplay.textContent = `${formatTime(secs)} / 02:02:17`;
+                playIcon.innerHTML = PAUSE_ICON;
+                return;
+            }
+
+            audio.currentTime = secs;
+            audio.play();
+        }
+
+        function togglePlay() {
+            if (demoMode) {
+                const isPlaying = playIcon.innerHTML.includes('M6 19');
+                playIcon.innerHTML = isPlaying ? PLAY_ICON : PAUSE_ICON;
+                if (!isPlaying) nowPlaying.textContent = '演示模式 · 请在 EPISODE.audioSrc 填入音频链接';
+                return;
+            }
+            audio.paused ? audio.play() : audio.pause();
+        }
+
+        function seekAudio(e) {
+            if (demoMode || !audio.duration) return;
+            const rect = progressWrap.getBoundingClientRect();
+            audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+        }
+
+        // ─────────────────────────────────────────────
+        //  音频事件
+        // ─────────────────────────────────────────────
+        audio.addEventListener('play', () => { playIcon.innerHTML = PAUSE_ICON; demoMode = false; });
+        audio.addEventListener('pause', () => { playIcon.innerHTML = PLAY_ICON; });
+        audio.addEventListener('loadedmetadata', () => {
+            timeDisplay.textContent = `00:00 / ${formatTime(audio.duration)}`;
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            if (!audio.duration) return;
+            progressBar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+            timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+
+            // 找到当前时间对应的最后一个段落并高亮
+            let active = null;
+            for (const seg of segments) {
+                if (audio.currentTime >= parseInt(seg.dataset.time, 10)) active = seg;
+                else break;
+            }
+            if (active) highlightSegment(active);
+        });
+
+        async function loadReviews() {
+            const masonry = document.getElementById('reviewsMasonry');
+            const msg = document.getElementById('reviewsMsg');
+            try {
+                const res = await fetch(EPISODE.reviewsPath);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                await linksReady;
+                msg.remove();
+                const frag = document.createDocumentFragment();
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    card.innerHTML = `
+                <div class="review-author">${escHtml(item.author)}</div>
+                <div class="review-text">${linkify(item.text)}</div>
+            `;
+                    frag.appendChild(card);
+                });
+                masonry.appendChild(frag);
+            } catch (err) {
+                msg.textContent = `书评加载失败：${err.message}`;
+                console.error(err);
+            }
+        }
+
+        async function loadBookList() {
+            const list = document.getElementById('bookList');
+            const msg = document.getElementById('bookListMsg');
+            try {
+                const res = await fetch(EPISODE.booksPath);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                msg.remove();
+                const frag = document.createDocumentFragment();
+                data.forEach(b => {
+                    const row = document.createElement('div');
+                    row.className = 'book-row';
+                    const title = `《${escHtml(b.title)}》`;
+                    row.innerHTML = `
+                <span class="book-title">${b.url
+                        ? `<a class="book-link" href="${escHtml(b.url)}" target="_blank" rel="noopener" title="在豆瓣查看${title}">${title}</a>`
+                        : title}</span>
+                <span class="book-author">${escHtml(b.author)}</span>
+                <span class="book-country">${escHtml(b.country)}</span>
+            `;
+                    frag.appendChild(row);
+                });
+                list.appendChild(frag);
+            } catch (err) {
+                msg.textContent = `书目加载失败：${err.message}`;
+                console.error(err);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  播放器到书评区停止悬浮
+        // ─────────────────────────────────────────────
+        const audioSection = document.getElementById('audioPlayer').closest
+            ? document.querySelector('.audio-section')
+            : null;
+
+        function updatePlayerSticky() {
+            const reviewsEl = document.getElementById('reviews-section');
+            const playerEl = document.querySelector('.audio-section');
+            if (!reviewsEl || !playerEl) return;
+            const reviewsTop = reviewsEl.getBoundingClientRect().top;
+            if (reviewsTop <= window.innerHeight * 0.5) {
+                playerEl.classList.add('is-unstuck');
+            } else {
+                playerEl.classList.remove('is-unstuck');
+            }
+        }
+
+        window.addEventListener('scroll', updatePlayerSticky, { passive: true });
+
+        // ─────────────────────────────────────────────
+        //  Vol 切换下拉菜单（期次列表来自 ../../episodes.json）
+        // ─────────────────────────────────────────────
+        const volSwitch = document.getElementById('volSwitch');
+        const volTrigger = document.getElementById('volTrigger');
+
+        async function renderVolSwitch() {
+            const menu = document.getElementById('volMenu');
+            const label = volTrigger.querySelector('span');
+            try {
+                const res = await fetch('../../episodes.json');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const eps = await res.json();
+
+                // 当前期次：从 URL 路径里的文件夹名判断
+                const path = location.pathname.replace(/\/index\.html?$/, '');
+                const curSlug = path.split('/').filter(Boolean).pop();
+
+                // 新的排在前面
+                eps.sort((a, b) => b.vol - a.vol);
+
+                menu.innerHTML = '';
+                eps.forEach(ep => {
+                    const volStr = 'Vol.' + String(ep.vol).padStart(2, '0');
+                    const isCurrent = ep.slug === curSlug;
+                    const a = document.createElement('a');
+                    a.className = 'vol-item' + (isCurrent ? ' is-current' : '');
+                    a.setAttribute('role', 'menuitem');
+                    if (isCurrent) {
+                        a.setAttribute('aria-current', 'true');
+                        label.textContent = volStr;
+                    } else {
+                        a.href = `../${ep.slug}/index.html`;
+                    }
+                    a.innerHTML =
+                        `<span class="vol-num">${volStr}</span>` +
+                        `<span class="vol-name">${ep.title}</span>`;
+                    menu.appendChild(a);
+                });
+            } catch (err) {
+                console.error('期次列表加载失败：', err);
+            }
+        }
+
+        volTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = volSwitch.classList.toggle('is-open');
+            volTrigger.setAttribute('aria-expanded', open);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!volSwitch.contains(e.target)) {
+                volSwitch.classList.remove('is-open');
+                volTrigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                volSwitch.classList.remove('is-open');
+                volTrigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // ─────────────────────────────────────────────
+        //  启动
+        // ─────────────────────────────────────────────
+        loadTranscript();
+        loadReviews();
+        loadBookList();
+        renderVolSwitch();
+    </script>
+</body>
+
+</html>
